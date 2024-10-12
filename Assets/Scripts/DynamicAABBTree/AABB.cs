@@ -6,7 +6,7 @@ public struct AABB
     public Vector3 upperBound;
     public Vector3 center;
     public Vector3 extend;
-    public RigidBody body;
+    public CustomRigidbody body;
 
     public AABB(Vector3 lowerBound, Vector3 upperBound)
     {
