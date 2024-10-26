@@ -1,29 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEngine;
 
 public class AABBTreeNode
 {
     public AABBTreeNode parent;
-
     public AABBTreeNode childA;
     public AABBTreeNode childB;
+    public AABB AABBBox;
+    public bool IsLeaf { get; private set; }
 
-    public AABB AABB;
-
-    public bool bIsLeaf;
-
-    public AABBTreeNode(AABB AABB, bool bIsLeaf)
+    public AABBTreeNode(AABB aabbBox, bool bIsLeaf)
     {
-        this.AABB = AABB;
-        this.bIsLeaf = bIsLeaf;
+        this.AABBBox = aabbBox;
+        this.IsLeaf = bIsLeaf;
     }
 
     public AABBTreeNode(bool bIsLeaf)
     {
-        this.bIsLeaf = bIsLeaf;
+        this.IsLeaf = bIsLeaf;
     }
-
-
 }

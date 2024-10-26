@@ -1,21 +1,19 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.IO.Compression;
 using UnityEngine;
 
 public class DAABBTree : MonoBehaviour
 {
     AABBTreeNode RootNode = null;
     List<AABBTreeNode> NodeList = new List<AABBTreeNode>();
-
+    List<AABBTreeNode> LeafNodeList = new List<AABBTreeNode>();
+    
     private void Start()
     {
-        //Remplace later with our own collider component ?
         SphereCollider[] colliders = FindObjectsOfType<SphereCollider>();
 
-        foreach (SphereCollider collider in colliders)
+        foreach (SphereCollider sphereCollider in colliders)
         {
-            AABB Box = new AABB(collider.bounds.min, collider.bounds.max);
+            AABB Box = new AABB(sphereCollider.bounds.min, sphereCollider.bounds.max);
             CreateLeafNode(Box);
         }
     }
@@ -42,26 +40,59 @@ public class DAABBTree : MonoBehaviour
     }
 
     AABBTreeNode FindBestSibling(AABBTreeNode newLeafNode)
-    { 
-        AABBTreeNode BestSibling = RootNode;
-        Queue<AABBTreeNode> PathNode = new Queue<AABBTreeNode>();
-        PathNode.Enqueue(BestSibling);
-
-        while (!BestSibling.bIsLeaf)
+    {
+        Queue<AABBTreeNode> priorityQueue = new Queue<AABBTreeNode>();
+        priorityQueue.Enqueue(RootNode);
+        AABBTreeNode bestSibling = RootNode;
+        float lowerCost = AABB.GetAreaUnion(newLeafNode.AABBBox, RootNode.AABBBox);
+        
+        while (priorityQueue.Count != 0)
         {
-            BestSibling = PickBest(BestSibling.childA, BestSibling.childB, newLeafNode);
-            PathNode.Enqueue(BestSibling);
+            AABBTreeNode possibleSibling = priorityQueue.Dequeue();
+            if (possibleSibling != null)
+            {
+                float cost = GetNodeCostIfSelectedAsSibling(possibleSibling, newLeafNode);
+                if (cost < lowerCost)
+                {
+                    lowerCost = cost;
+                    bestSibling = possibleSibling;
+                }
+                
+                if (IsItWorthToExploreBranch(possibleSibling, newLeafNode, lowerCost))
+                {
+                    priorityQueue.Enqueue(bestSibling.childA);
+                    priorityQueue.Enqueue(bestSibling.childB);
+                }
+            }
         }
-
-        return BestSibling;
+        
+        return bestSibling;
     }
 
-    AABBTreeNode PickBest(AABBTreeNode A, AABBTreeNode B, AABBTreeNode newLeafNode)
+    float GetNodeCostIfSelectedAsSibling(AABBTreeNode possibleSibling, AABBTreeNode newLeaf)
     {
-        float CostChildA = GetNodeCost(A, newLeafNode);
-        float CostChildB = GetNodeCost(B, newLeafNode);
+        float cost = AABB.GetAreaUnion(possibleSibling.AABBBox, newLeaf.AABBBox);
+        AABBTreeNode parent = possibleSibling.parent;
+        while(parent != null)
+        {
+            cost += AABB.GetAreaUnion(parent.AABBBox, newLeaf.AABBBox) - parent.AABBBox.GetArea();
+            parent = parent.parent;
+        }
 
-        return CostChildA < CostChildB ? A : B;
+        return cost;
+    }
+    
+    private bool IsItWorthToExploreBranch(AABBTreeNode startBranch, AABBTreeNode newLeafNode, float bestCost)
+    {
+        float minCostIfExploringBranch = newLeafNode.AABBBox.GetArea();
+        AABBTreeNode inheritedNode = startBranch;
+        while (inheritedNode != null)
+        {
+            minCostIfExploringBranch += AABB.GetAreaUnion(inheritedNode.AABBBox, newLeafNode.AABBBox) - inheritedNode.AABBBox.GetArea();
+            inheritedNode = inheritedNode.parent;
+        }
+
+        return minCostIfExploringBranch < bestCost;
     }
 
     void InsertLeaf(AABBTreeNode newLeaf, AABBTreeNode sibling)
@@ -70,7 +101,6 @@ public class DAABBTree : MonoBehaviour
         NodeList.Add(newInternalNode);
         AABBTreeNode oldParent = sibling.parent;
         newInternalNode.parent = oldParent;
-        newInternalNode.AABB = AABB.Merge(newLeaf.AABB, sibling.AABB);
 
         if(oldParent != null)
         {
@@ -92,20 +122,87 @@ public class DAABBTree : MonoBehaviour
 
     void RefitAABB(AABBTreeNode LeafNode)
     {
-        AABBTreeNode NodeToRefit = LeafNode.parent.parent;
+        AABBTreeNode NodeToRefit = LeafNode.parent;
         while(NodeToRefit != null)
         {
-            NodeToRefit.AABB = AABB.Merge(NodeToRefit.childA.AABB, NodeToRefit.childB.AABB);
+            NodeToRefit.AABBBox = AABB.Merge(NodeToRefit.childA.AABBBox, NodeToRefit.childB.AABBBox);
 
-            TreeRotation(NodeToRefit);
-
+            if (TreeRotation(NodeToRefit))
+            {
+                NodeToRefit.AABBBox = AABB.Merge(NodeToRefit.childA.AABBBox, NodeToRefit.childB.AABBBox);
+            }
             NodeToRefit = NodeToRefit.parent;
         }
     }
 
-    void TreeRotation(AABBTreeNode node)
+    bool TreeRotation(AABBTreeNode node)
     {
+        if(node.parent == null) return false;
+        if (TrySwitch(node.parent.childA, node.parent.childB.childA))
+        {
+            return true;
+        }
+        if (TrySwitch(node.parent.childA, node.parent.childB.childB))
+        {
+            return true;
+        }
+        if (TrySwitch(node.parent.childB, node.parent.childA.childA))
+        {
+            return true;
+        }
+        if (TrySwitch(node.parent.childB, node.parent.childA.childA))
+        {
+            return true;
+        }
 
+        return false;
+    }
+
+    bool TrySwitch(AABBTreeNode From, AABBTreeNode To) //From need to be higher in the tree than To
+    {
+        if (From == null || To == null)
+            return false;
+
+        float currentCostBParent = To.parent.AABBBox.GetArea();
+        AABBTreeNode BSibling = To == To.parent.childA ? To.parent.childB : To.parent.childA;
+        float newCostBParent = AABB.Merge(From.AABBBox, BSibling.AABBBox).GetArea();
+
+        if (newCostBParent < currentCostBParent)
+        {
+            SwitchNodes(From, To);
+            return true;
+        }
+
+        return false;
+    }
+
+    void SwitchNodes(AABBTreeNode From, AABBTreeNode To)
+    {
+        AABBTreeNode parentA = From.parent;
+        AABBTreeNode parentB = To.parent;
+        From.parent = parentB;
+        To.parent = parentA;
+
+        if (From.parent.childA == To)
+        {
+            From.parent.childA = From;
+        }
+        else
+        {
+            From.parent.childB = From;
+        }
+        
+        if (To.parent.childA == From)
+        {
+            To.parent.childA = To;
+        }
+        else
+        {
+            To.parent.childB = To;
+        }
+        
+        From.parent.AABBBox = AABB.Merge(From.parent.childA.AABBBox, From.parent.childB.AABBBox);
+        To.parent.AABBBox = AABB.Merge(To.parent.childA.AABBBox, To.parent.childB.AABBBox);
     }
 
     float GetTreeCost()
@@ -113,26 +210,15 @@ public class DAABBTree : MonoBehaviour
         float cost = 0; 
         foreach(AABBTreeNode node in NodeList)
         {
-            if(node.bIsLeaf == false)
+            if(node.IsLeaf == false)
             {
-                cost += node.AABB.GetArea();
+                cost += node.AABBBox.GetArea();
             }
         }
         return cost;
     }
 
-    float GetNodeCost(AABBTreeNode Node, AABBTreeNode newLeaf)
-    {
-        float cost = AABB.GetAreaUnion(Node.AABB, newLeaf.AABB);
-        AABBTreeNode parent = Node.parent;
-        while(parent != null)
-        {
-            cost += AABB.GetAreaUnion(parent.AABB, newLeaf.AABB) - parent.AABB.GetArea();
-            parent = parent.parent;
-        }
 
-        return cost;
-    }
 
     #region Gizmos
 
@@ -142,14 +228,14 @@ public class DAABBTree : MonoBehaviour
 
         foreach (AABBTreeNode node in NodeList)
         {
-            DrawAABB(node.AABB);
+            DrawAABB(node.AABBBox);
         }
     }
 
     private void DrawAABB(AABB box)
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(box.center, box.extend);
+        Gizmos.DrawWireCube(box.Center, box.Extend);
     }
 
     #endregion
