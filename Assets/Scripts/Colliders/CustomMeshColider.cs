@@ -3,13 +3,6 @@ using UnityEngine;
 [RequireComponent (typeof(Mesh))]
 public class CustomMeshColider : CustomCollider
 {
-    Mesh mesh;
-
-    private void Awake()
-    {
-        mesh = GetComponent<Mesh>();
-    }
-
     protected override Vector3 Support(Vector3 dir) 
     {
         Vector3 result = new Vector3();

@@ -4,6 +4,15 @@ using UnityEngine;
 
 abstract public class CustomCollider : MonoBehaviour
 {
+    protected Mesh mesh;
+    public Bounds bounds { get { return mesh.bounds; } }
+
+    private void Awake()
+    {
+        mesh = GetComponent<Mesh>();
+    }
+
+    #region Statics
     public static float precision = 0.001f;
     public static int maxIteration = 20;
 
@@ -103,4 +112,5 @@ abstract public class CustomCollider : MonoBehaviour
 
         return false;
     }
+    #endregion
 }
