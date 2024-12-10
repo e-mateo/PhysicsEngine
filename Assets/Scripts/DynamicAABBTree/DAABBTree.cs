@@ -1,20 +1,52 @@
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class DAABBTree : MonoBehaviour
 {
     AABBTreeNode RootNode = null;
     List<AABBTreeNode> NodeList = new List<AABBTreeNode>();
     List<AABBTreeNode> LeafNodeList = new List<AABBTreeNode>();
-    
+
+    static DAABBTree instance = null;
+    static public DAABBTree Instance
+    {
+        get
+        {
+            if (instance == null)
+                instance = FindObjectOfType<DAABBTree>();
+            return instance;
+        }
+    }
+
     private void Start()
     {
         SphereCollider[] colliders = FindObjectsOfType<SphereCollider>();
-
         foreach (SphereCollider sphereCollider in colliders)
         {
-            AABB Box = new AABB(sphereCollider.bounds.min, sphereCollider.bounds.max);
-            CreateLeafNode(Box);
+            AABB Box = new AABB(sphereCollider.bounds.center, sphereCollider.bounds.extents);
+            CreateLeafNode(Box, sphereCollider);
+        }
+    }
+
+    private void Update()
+    {
+        List<AABBTreeNode> nodeToUpdate = new List<AABBTreeNode>();
+        foreach (AABBTreeNode node in LeafNodeList)
+        {
+            node.AABBBox.UpdateAABB(node.collider.bounds.center);
+            if (node.AABBBox.HasExitEnlargedAABB())
+            {
+                node.AABBBox.UpdateEnlargedAABB();
+                nodeToUpdate.Add(node); 
+            }
+        }
+
+        for(int i = 0; i < nodeToUpdate.Count; i++)
+        {
+            RemoveLeafNode(nodeToUpdate[i]);
+            CreateLeafNode(nodeToUpdate[i].AABBBox, nodeToUpdate[i].collider);
         }
     }
 
@@ -23,10 +55,11 @@ public class DAABBTree : MonoBehaviour
         RootNode = node;
     }
 
-    public void CreateLeafNode(AABB AABB)
+    public void CreateLeafNode(AABB AABB, Collider collider)
     {
-        AABBTreeNode newLeafNode = new AABBTreeNode(AABB, true);
+        AABBTreeNode newLeafNode = new AABBTreeNode(AABB, collider, true);
         NodeList.Add(newLeafNode);
+        LeafNodeList.Add(newLeafNode);
 
         if (RootNode == null)
         {
@@ -37,6 +70,43 @@ public class DAABBTree : MonoBehaviour
         AABBTreeNode bestSibling = FindBestSibling(newLeafNode);
         InsertLeaf(newLeafNode, bestSibling);
         RefitAABB(newLeafNode);
+    }
+
+    public void RemoveLeafNode(AABBTreeNode LeafNode)
+    {
+        NodeList.Remove(LeafNode);
+        LeafNodeList.Remove(LeafNode);
+
+        if(LeafNode.parent != null)
+        {
+            AABBTreeNode parentNode = LeafNode.parent;
+            AABBTreeNode sibling = parentNode.childA == LeafNode ? parentNode.childB : parentNode.childA;
+
+            sibling.parent = parentNode.parent;
+            if(sibling.parent != null)
+            {
+                if(sibling.parent.childA == parentNode)
+                {
+                    sibling.parent.childA = sibling;
+                }
+                else
+                {
+                    sibling.parent.childB = sibling;
+                }
+            }
+            else
+            {
+                RootNode = sibling;
+            }
+
+            NodeList.Remove(parentNode);
+            RefitAABB(sibling, false);
+        }
+        else
+        {
+            RootNode = null;
+        }
+
     }
 
     AABBTreeNode FindBestSibling(AABBTreeNode newLeafNode)
@@ -57,11 +127,11 @@ public class DAABBTree : MonoBehaviour
                     lowerCost = cost;
                     bestSibling = possibleSibling;
                 }
-                
+
                 if (IsItWorthToExploreBranch(possibleSibling, newLeafNode, lowerCost))
                 {
-                    priorityQueue.Enqueue(bestSibling.childA);
-                    priorityQueue.Enqueue(bestSibling.childB);
+                    priorityQueue.Enqueue(possibleSibling.childA);
+                    priorityQueue.Enqueue(possibleSibling.childB);
                 }
             }
         }
@@ -120,7 +190,7 @@ public class DAABBTree : MonoBehaviour
         newLeaf.parent = newInternalNode;
     }
 
-    void RefitAABB(AABBTreeNode LeafNode)
+    void RefitAABB(AABBTreeNode LeafNode, bool AllowTreeRotation = true)
     {
         AABBTreeNode NodeToRefit = LeafNode.parent;
         while(NodeToRefit != null)
@@ -228,14 +298,15 @@ public class DAABBTree : MonoBehaviour
 
         foreach (AABBTreeNode node in NodeList)
         {
-            DrawAABB(node.AABBBox);
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireCube(node.AABBBox.Center, node.AABBBox.Extend * 2f);
         }
-    }
 
-    private void DrawAABB(AABB box)
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(box.Center, box.Extend);
+        foreach (AABBTreeNode leaves in LeafNodeList)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireCube(leaves.AABBBox.CenterEnlargedAABB, leaves.AABBBox.ExtendEnlargedAABB * 2f);
+        }
     }
 
     #endregion

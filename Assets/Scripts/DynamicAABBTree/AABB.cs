@@ -1,28 +1,63 @@
+using JetBrains.Annotations;
 using UnityEngine;
 
-public struct AABB 
+public struct AABB
 {
+    static float ENCAPSULATED_ADDED_EXTEND = 1.0f;
     public Vector3 LowerBound { get; private set; }
     public Vector3 UpperBound { get; private set; }
     public Vector3 Center { get; private set; }
     public Vector3 Extend { get; private set; }
-    public CustomRigidbody Body { get; private set; }
-    
 
-    public AABB(Vector3 lowerBound, Vector3 upperBound)
+    public Vector3 CenterEnlargedAABB { get; private set; }
+    public Vector3 LowerBoundEnlargedAABB { get; private set; }
+    public Vector3 UpperBoundEnlargedAABB { get; private set; }
+    public Vector3 ExtendEnlargedAABB { get; private set; }
+
+    public AABB(Vector3 center, Vector3 extend)
     {
-        LowerBound = lowerBound;
-        UpperBound = upperBound;
-        Center = (upperBound - lowerBound) / 2f + lowerBound;
-        Extend = upperBound - lowerBound;
-        Body = null;
+        Center = center;
+        Extend = extend;
+        LowerBound = center - extend;
+        UpperBound = center + extend;
+
+        CenterEnlargedAABB = Center;
+        ExtendEnlargedAABB = Extend + new Vector3(ENCAPSULATED_ADDED_EXTEND, ENCAPSULATED_ADDED_EXTEND, ENCAPSULATED_ADDED_EXTEND);
+        LowerBoundEnlargedAABB = CenterEnlargedAABB - ExtendEnlargedAABB;
+        UpperBoundEnlargedAABB = CenterEnlargedAABB + ExtendEnlargedAABB;
+    }
+
+    public void UpdateAABB(Vector3 center)
+    {
+        Center = center;
+        LowerBound = center - Extend;
+        UpperBound = center + Extend;
+    }
+
+    public void UpdateEnlargedAABB()
+    {
+        CenterEnlargedAABB = Center;
+        ExtendEnlargedAABB = Extend + new Vector3(ENCAPSULATED_ADDED_EXTEND, ENCAPSULATED_ADDED_EXTEND, ENCAPSULATED_ADDED_EXTEND);
+        LowerBoundEnlargedAABB = CenterEnlargedAABB - ExtendEnlargedAABB;
+        UpperBoundEnlargedAABB = CenterEnlargedAABB + ExtendEnlargedAABB;
+    }
+
+    public bool HasExitEnlargedAABB()
+    {
+        if (LowerBound.x < LowerBoundEnlargedAABB.x || LowerBound.y < LowerBoundEnlargedAABB.y || LowerBound.z < LowerBoundEnlargedAABB.z
+         || UpperBound.x > UpperBoundEnlargedAABB.x || UpperBound.y > UpperBoundEnlargedAABB.y || UpperBound.z > UpperBoundEnlargedAABB.z)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public static AABB Merge(AABB a, AABB b)
     {
         Vector3 lowerBound = Vector3.Min(a.LowerBound, b.LowerBound);
         Vector3 upperBound = Vector3.Max(a.UpperBound, b.UpperBound);
-        return new AABB(lowerBound, upperBound);
+        return new AABB((upperBound - lowerBound) * 0.5f + lowerBound, (upperBound - lowerBound) * 0.5f);
     }
 
     public static float GetAreaUnion(AABB a, AABB b)
@@ -35,10 +70,5 @@ public struct AABB
     {
         Vector3 diagonal = UpperBound - LowerBound;
         return 2.0f * (diagonal.x * diagonal.y + diagonal.y * diagonal.z + diagonal.z * diagonal.x);
-    }
-
-    public void BindRigidbody(CustomRigidbody rigidbody)
-    {
-        Body = rigidbody;
     }
 }
