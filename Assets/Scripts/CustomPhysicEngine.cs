@@ -71,25 +71,7 @@ public class CustomPhysicEngine : MonoBehaviour
         if (!Application.isPlaying)
             return;
 
-        Vector3[] tet = CustomCollider.GenerateTetrahedron(colliders[0], colliders[1]);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(tet[0], tet[1]);
-        Gizmos.DrawLine(tet[0], tet[2]);
-        Gizmos.DrawLine(tet[0], tet[3]);
-        Gizmos.DrawLine(tet[1], tet[2]);
-        Gizmos.DrawLine(tet[1], tet[3]);
-        Gizmos.DrawLine(tet[2], tet[3]);
-
-        tet = CustomCollider.GenerateTetrahedron(colliders[1], colliders[0]);
-        Gizmos.DrawLine(tet[0], tet[1]);
-        Gizmos.DrawLine(tet[0], tet[2]);
-        Gizmos.DrawLine(tet[0], tet[3]);
-        Gizmos.DrawLine(tet[1], tet[2]);
-        Gizmos.DrawLine(tet[1], tet[3]);
-        Gizmos.DrawLine(tet[2], tet[3]);
-
-        Gizmos.color = Color.green;
+        Gizmos.color = Color.yellow;
         Gizmos.DrawLine(collidingTethraedron[0], collidingTethraedron[1]);
         Gizmos.DrawLine(collidingTethraedron[0], collidingTethraedron[2]);
         Gizmos.DrawLine(collidingTethraedron[0], collidingTethraedron[3]);
