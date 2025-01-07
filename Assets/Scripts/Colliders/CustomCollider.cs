@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEngine;
@@ -9,10 +10,25 @@ abstract public class CustomCollider : MonoBehaviour
 
     private void Awake()
     {
-        mesh = GetComponent<Mesh>();
+        mesh = GetComponent<MeshFilter>().mesh;
     }
 
     #region Statics
+    public static List<Vector3> MinkowskiDifference(CustomCollider A, CustomCollider B)
+    {
+        List<Vector3> vertices = new List<Vector3>();
+
+        foreach (Vector3 vA in A.mesh.vertices)
+        {
+            foreach (Vector3 vB in B.mesh.vertices)
+            {
+                vertices.Add((vA + A.transform.position) - (vB + B.transform.position));
+            }
+        }
+        
+        return vertices;
+    }
+
     public static float precision = 0.001f;
     public static int maxIteration = 20;
 
@@ -39,7 +55,7 @@ abstract public class CustomCollider : MonoBehaviour
             IsPointSameSideOfPlane(tetrahedron[3], tetrahedron[0], tetrahedron[1], tetrahedron[2], point);
     }
 
-    private static Vector3[] GenerateTetrahedron(CustomCollider A, CustomCollider B)
+    public static Vector3[] GenerateTetrahedron(CustomCollider A, CustomCollider B)
     {
         Vector3[] tetrahedron = new Vector3[4];
 
@@ -61,7 +77,7 @@ abstract public class CustomCollider : MonoBehaviour
         tetrahedron[2] = support;
 
         // Last point creation
-        dir = Vector3.Cross(dir, line);
+        dir = Vector3.Cross(tetrahedron[1] - tetrahedron[0], tetrahedron[2] - tetrahedron[0]);
         Vector3 toZero = Vector3.zero - tetrahedron[2];
         if (Vector3.Dot(dir, toZero) < 0)
             dir = -dir;

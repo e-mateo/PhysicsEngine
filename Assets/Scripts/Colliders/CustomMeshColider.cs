@@ -10,15 +10,15 @@ public class CustomMeshColider : CustomCollider
 
         foreach (Vector3 point in mesh.vertices) 
         {
-            float proj = Vector3.Dot(point, dir);
+            float proj = Vector3.Dot(transform.TransformPoint(point), dir.normalized);
 
             if (proj > MaxProj) 
             {
                 MaxProj = proj;
-                result = point;
+                result = transform.TransformPoint(point);
             }
         }
 
-        return result;
+        return (result + bounds.center + transform.position);
     }
 }
