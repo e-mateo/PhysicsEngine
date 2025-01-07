@@ -7,12 +7,12 @@ public class AABBTreeNode
     public AABBTreeNode childA;
     public AABBTreeNode childB;
     public AABB AABBBox;
-    public Collider collider;
+    public CustomCollider collider;
     public bool bHasCrossedChildren = false;
 
     public bool IsLeaf { get; private set; }
 
-    public AABBTreeNode(AABB aabbBox, Collider collider, bool bIsLeaf)
+    public AABBTreeNode(AABB aabbBox, CustomCollider collider, bool bIsLeaf)
     {
         this.AABBBox = aabbBox;
         this.collider = collider;   

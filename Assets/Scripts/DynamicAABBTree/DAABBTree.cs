@@ -1,15 +1,13 @@
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public struct CollisionPair
 {
-    //TODO: Remplace with RigidBody
-    public Collider colliderA;
-    public Collider colliderB;
+    //TODO: Remplace with RigidBody ?
+    public CustomCollider colliderA;
+    public CustomCollider colliderB;
 
-    public CollisionPair(Collider A, Collider B)
+    public CollisionPair(CustomCollider A, CustomCollider B)
     {
         colliderA = A;
         colliderB = B;
@@ -18,77 +16,66 @@ public struct CollisionPair
 
 public class DAABBTree : MonoBehaviour
 {
-    AABBTreeNode RootNode = null;
-    List<AABBTreeNode> NodeList = new List<AABBTreeNode>();
-    List<AABBTreeNode> LeafNodeList = new List<AABBTreeNode>();
+    private AABBTreeNode rootNode = null;
+    private List<AABBTreeNode> nodes = new List<AABBTreeNode>();
+    private Dictionary<CustomCollider, AABBTreeNode> leafNodes = new Dictionary<CustomCollider, AABBTreeNode>();
 
-    List<CollisionPair> collisionPairs = new List<CollisionPair>();
+    private List<CollisionPair> collisionPairs = new List<CollisionPair>();
 
-    static DAABBTree instance = null;
-    static public DAABBTree Instance
+    public void AddColliderToTree(CustomCollider collider)
     {
-        get
-        {
-            if (instance == null)
-                instance = FindObjectOfType<DAABBTree>();
-            return instance;
-        }
+        CreateLeafNode(collider);
     }
 
-    private void Start()
+    public void RemoveColliderFromTree(CustomCollider collider)
     {
-        SphereCollider[] colliders = FindObjectsOfType<SphereCollider>();
-        foreach (SphereCollider sphereCollider in colliders)
-        {
-            AABB Box = new AABB(sphereCollider.bounds.center, sphereCollider.bounds.extents);
-            CreateLeafNode(Box, sphereCollider);
-        }
+        RemoveLeafNode(collider);
     }
 
-    private void Update()
+    public void UpdateTreeAndCollisionPairs()
     {
         UpdateABBBTree();
         UpdateCollisionPairs();
     }
-
     public List<CollisionPair> GetCollisionPairs()
     {
         return collisionPairs;
     }
 
-    public void UpdateABBBTree()
+    private void UpdateABBBTree()
     {
-        List<AABBTreeNode> nodeToUpdate = new List<AABBTreeNode>();
-        foreach (AABBTreeNode node in LeafNodeList)
+        List <KeyValuePair <CustomCollider, AABBTreeNode>> nodeToUpdate = new List<KeyValuePair<CustomCollider, AABBTreeNode>>();
+        foreach (KeyValuePair<CustomCollider, AABBTreeNode> node in leafNodes)
         {
-            node.AABBBox.UpdateAABB(node.collider.bounds.center);
-            if (node.AABBBox.HasExitEnlargedAABB())
+            AABBTreeNode treeNode = node.Value;
+            treeNode.AABBBox.UpdateAABB(treeNode.collider.worldBounds.center);
+            if (treeNode.AABBBox.HasExitEnlargedAABB())
             {
-                node.AABBBox.UpdateEnlargedAABB();
+                treeNode.AABBBox.UpdateEnlargedAABB();
                 nodeToUpdate.Add(node);
             }
         }
 
         for (int i = 0; i < nodeToUpdate.Count; i++)
         {
-            RemoveLeafNode(nodeToUpdate[i]);
-            CreateLeafNode(nodeToUpdate[i].AABBBox, nodeToUpdate[i].collider);
+            RemoveLeafNode(nodeToUpdate[i].Key);
+            CreateLeafNode(nodeToUpdate[i].Value.collider);
         }
     }
 
-
     private void SetRootNode(AABBTreeNode node)
     { 
-        RootNode = node;
+        rootNode = node;
     }
 
-    public void CreateLeafNode(AABB AABB, Collider collider)
+    private void CreateLeafNode(CustomCollider collider)
     {
-        AABBTreeNode newLeafNode = new AABBTreeNode(AABB, collider, true);
-        NodeList.Add(newLeafNode);
-        LeafNodeList.Add(newLeafNode);
+        AABB AABBBox = new AABB(collider.worldBounds.center, collider.worldBounds.extents);
+        AABBTreeNode newLeafNode = new AABBTreeNode(AABBBox, collider, true);
+        nodes.Add(newLeafNode);
+        leafNodes.Add(collider, newLeafNode);
 
-        if (RootNode == null)
+        if (rootNode == null)
         {
             SetRootNode(newLeafNode);
             return;
@@ -99,15 +86,18 @@ public class DAABBTree : MonoBehaviour
         RefitAABB(newLeafNode);
     }
 
-    public void RemoveLeafNode(AABBTreeNode LeafNode)
+    private void RemoveLeafNode(CustomCollider collider)
     {
-        NodeList.Remove(LeafNode);
-        LeafNodeList.Remove(LeafNode);
+        AABBTreeNode treeNode = leafNodes[collider];
+        if (treeNode == null) { return;}
 
-        if(LeafNode.parent != null)
+        leafNodes.Remove(collider);
+        nodes.Remove(treeNode);
+
+        if(treeNode.parent != null)
         {
-            AABBTreeNode parentNode = LeafNode.parent;
-            AABBTreeNode sibling = parentNode.childA == LeafNode ? parentNode.childB : parentNode.childA;
+            AABBTreeNode parentNode = treeNode.parent;
+            AABBTreeNode sibling = parentNode.childA == treeNode ? parentNode.childB : parentNode.childA;
 
             sibling.parent = parentNode.parent;
             if(sibling.parent != null)
@@ -123,25 +113,24 @@ public class DAABBTree : MonoBehaviour
             }
             else
             {
-                RootNode = sibling;
+                rootNode = sibling;
             }
 
-            NodeList.Remove(parentNode);
-            RefitAABB(sibling, false);
+            nodes.Remove(parentNode);
+            RefitAABB(sibling);
         }
         else
         {
-            RootNode = null;
+            rootNode = null;
         }
 
     }
-
-    AABBTreeNode FindBestSibling(AABBTreeNode newLeafNode)
+    private AABBTreeNode FindBestSibling(AABBTreeNode newLeafNode)
     {
         Queue<AABBTreeNode> priorityQueue = new Queue<AABBTreeNode>();
-        priorityQueue.Enqueue(RootNode);
-        AABBTreeNode bestSibling = RootNode;
-        float lowerCost = AABB.GetAreaUnion(newLeafNode.AABBBox, RootNode.AABBBox);
+        priorityQueue.Enqueue(rootNode);
+        AABBTreeNode bestSibling = rootNode;
+        float lowestCost = AABB.GetAreaUnion(newLeafNode.AABBBox, rootNode.AABBBox);
         
         while (priorityQueue.Count != 0)
         {
@@ -149,13 +138,13 @@ public class DAABBTree : MonoBehaviour
             if (possibleSibling != null)
             {
                 float cost = GetNodeCostIfSelectedAsSibling(possibleSibling, newLeafNode);
-                if (cost < lowerCost)
+                if (cost < lowestCost)
                 {
-                    lowerCost = cost;
+                    lowestCost = cost;
                     bestSibling = possibleSibling;
                 }
 
-                if (IsItWorthToExploreBranch(possibleSibling, newLeafNode, lowerCost))
+                if (IsWorthToExploreBranch(possibleSibling, newLeafNode, lowestCost))
                 {
                     priorityQueue.Enqueue(possibleSibling.childA);
                     priorityQueue.Enqueue(possibleSibling.childB);
@@ -179,23 +168,24 @@ public class DAABBTree : MonoBehaviour
         return cost;
     }
     
-    private bool IsItWorthToExploreBranch(AABBTreeNode startBranch, AABBTreeNode newLeafNode, float bestCost)
+    private bool IsWorthToExploreBranch(AABBTreeNode branchNode, AABBTreeNode newLeafNode, float currentBestCost)
     {
+        //Acts as if the newLeafNode become a child of branchNode
         float minCostIfExploringBranch = newLeafNode.AABBBox.GetArea();
-        AABBTreeNode inheritedNode = startBranch;
-        while (inheritedNode != null)
+        AABBTreeNode parent = branchNode;
+        while (parent != null)
         {
-            minCostIfExploringBranch += AABB.GetAreaUnion(inheritedNode.AABBBox, newLeafNode.AABBBox) - inheritedNode.AABBBox.GetArea();
-            inheritedNode = inheritedNode.parent;
+            minCostIfExploringBranch += AABB.GetAreaUnion(parent.AABBBox, newLeafNode.AABBBox) - parent.AABBBox.GetArea();
+            parent = parent.parent;
         }
 
-        return minCostIfExploringBranch < bestCost;
+        return minCostIfExploringBranch < currentBestCost;
     }
 
     void InsertLeaf(AABBTreeNode newLeaf, AABBTreeNode sibling)
     {
         AABBTreeNode newInternalNode = new AABBTreeNode(false);
-        NodeList.Add(newInternalNode);
+        nodes.Add(newInternalNode);
         AABBTreeNode oldParent = sibling.parent;
         newInternalNode.parent = oldParent;
 
@@ -217,7 +207,7 @@ public class DAABBTree : MonoBehaviour
         newLeaf.parent = newInternalNode;
     }
 
-    void RefitAABB(AABBTreeNode LeafNode, bool AllowTreeRotation = true)
+    void RefitAABB(AABBTreeNode LeafNode)
     {
         AABBTreeNode NodeToRefit = LeafNode.parent;
         while(NodeToRefit != null)
@@ -228,26 +218,30 @@ public class DAABBTree : MonoBehaviour
             {
                 NodeToRefit.AABBBox = AABB.Merge(NodeToRefit.childA.AABBBox, NodeToRefit.childB.AABBBox);
             }
+
             NodeToRefit = NodeToRefit.parent;
         }
     }
 
-    bool TreeRotation(AABBTreeNode node)
+    bool TreeRotation(AABBTreeNode nodeToRefit)
     {
-        if(node.parent == null) return false;
-        if (TrySwitch(node.parent.childA, node.parent.childB.childA))
+        if(nodeToRefit.parent == null) return false;
+
+        AABBTreeNode parentNode = nodeToRefit.parent;
+
+        if (TrySwitch(parentNode.childA, parentNode.childB.childA))
         {
             return true;
         }
-        if (TrySwitch(node.parent.childA, node.parent.childB.childB))
+        if (TrySwitch(parentNode.childA, parentNode.childB.childB))
         {
             return true;
         }
-        if (TrySwitch(node.parent.childB, node.parent.childA.childA))
+        if (TrySwitch(parentNode.childB, parentNode.childA.childA))
         {
             return true;
         }
-        if (TrySwitch(node.parent.childB, node.parent.childA.childA))
+        if (TrySwitch(parentNode.childB, parentNode.childA.childB))
         {
             return true;
         }
@@ -258,13 +252,17 @@ public class DAABBTree : MonoBehaviour
     bool TrySwitch(AABBTreeNode From, AABBTreeNode To) //From need to be higher in the tree than To
     {
         if (From == null || To == null)
+        {
             return false;
+        }
 
-        float currentCostBParent = To.parent.AABBBox.GetArea();
-        AABBTreeNode BSibling = To == To.parent.childA ? To.parent.childB : To.parent.childA;
-        float newCostBParent = AABB.Merge(From.AABBBox, BSibling.AABBBox).GetArea();
+        AABBTreeNode To_Sibling = (To == To.parent.childA) ? To.parent.childB : To.parent.childA;
 
-        if (newCostBParent < currentCostBParent)
+        //Check if the cost of B Parent become lower if A is inverted with B
+        float To_costParent = To.parent.AABBBox.GetArea();
+        float To_newCostParent = AABB.Merge(From.AABBBox, To_Sibling.AABBBox).GetArea();
+
+        if (To_newCostParent < To_costParent)
         {
             SwitchNodes(From, To);
             return true;
@@ -302,30 +300,18 @@ public class DAABBTree : MonoBehaviour
         To.parent.AABBBox = AABB.Merge(To.parent.childA.AABBBox, To.parent.childB.AABBBox);
     }
 
-    float GetTreeCost()
-    {
-        float cost = 0; 
-        foreach(AABBTreeNode node in NodeList)
-        {
-            if(node.IsLeaf == false)
-            {
-                cost += node.AABBBox.GetArea();
-            }
-        }
-        return cost;
-    }
 
     public void UpdateCollisionPairs()
     {
         collisionPairs.Clear();
 
-        if(RootNode == null || RootNode.IsLeaf)
+        if(rootNode == null || rootNode.IsLeaf)
         {
             return;
         }
 
-        ResetHasCrossedChildren(RootNode);
-        CheckCollisionPair(RootNode.childA, RootNode.childB);
+        ResetHasCrossedChildren(rootNode);
+        CheckCollisionPair(rootNode.childA, rootNode.childB);
     }
 
     private void ResetHasCrossedChildren(AABBTreeNode node)
@@ -338,7 +324,7 @@ public class DAABBTree : MonoBehaviour
        }
     }
 
-    public void CheckCollisionPair(AABBTreeNode nodeA, AABBTreeNode nodeB)
+    private void CheckCollisionPair(AABBTreeNode nodeA, AABBTreeNode nodeB)
     {
         bool AABBCollides = AABB.IsColliding(nodeA.AABBBox, nodeB.AABBBox);
 
@@ -393,33 +379,30 @@ public class DAABBTree : MonoBehaviour
         }
     }
 
-
-
     #region Gizmos
-
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
 
-        foreach (AABBTreeNode node in NodeList)
+        foreach (AABBTreeNode node in nodes)
         {
             Gizmos.color = Color.blue;
             Gizmos.DrawWireCube(node.AABBBox.Center, node.AABBBox.Extend * 2f);
         }
 
-        foreach (AABBTreeNode leaves in LeafNodeList)
+        foreach (KeyValuePair<CustomCollider, AABBTreeNode> leaves in leafNodes)
         {
             Gizmos.color = Color.green;
-            Gizmos.DrawWireCube(leaves.AABBBox.CenterEnlargedAABB, leaves.AABBBox.ExtendEnlargedAABB * 2f);
+            Gizmos.DrawWireCube(leaves.Value.AABBBox.CenterEnlargedAABB, leaves.Value.AABBBox.ExtendEnlargedAABB * 2f);
         }
+
 
         foreach(CollisionPair pair in collisionPairs)
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireCube(pair.colliderA.bounds.center, pair.colliderA.bounds.extents * 2f);
-            Gizmos.DrawWireCube(pair.colliderB.bounds.center, pair.colliderB.bounds.extents * 2f);
+            Gizmos.DrawWireCube(pair.colliderA.worldBounds.center, pair.colliderA.worldBounds.extents * 2f);
+            Gizmos.DrawWireCube(pair.colliderB.worldBounds.center, pair.colliderB.worldBounds.extents * 2f);
         }
     }
-
     #endregion
 }

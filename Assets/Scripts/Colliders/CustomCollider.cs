@@ -6,11 +6,32 @@ using UnityEngine;
 abstract public class CustomCollider : MonoBehaviour
 {
     protected Mesh mesh;
+    protected Renderer renderer;
+
     public Bounds bounds { get { return mesh.bounds; } }
+    public Bounds worldBounds { get { return renderer.bounds; } }
+
 
     private void Awake()
     {
         mesh = GetComponent<MeshFilter>().mesh;
+        renderer = GetComponent<Renderer>();
+    }
+
+    private void OnEnable()
+    {
+        if(CustomPhysicEngine.Instance)
+        {
+            CustomPhysicEngine.Instance.OnColliderEnable(this);
+        }
+    }
+
+    private void OnDisable()
+    {
+        if(CustomPhysicEngine.Instance)
+        {
+            CustomPhysicEngine.Instance.OnColliderDisbale(this);
+        }
     }
 
     #region Statics

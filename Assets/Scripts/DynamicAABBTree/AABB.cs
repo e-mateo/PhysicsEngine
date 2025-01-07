@@ -1,12 +1,11 @@
-using JetBrains.Annotations;
 using UnityEngine;
 
 public struct AABB
 {
     static float ENCAPSULATED_ADDED_EXTEND = 1.0f;
+    public Vector3 Center { get; private set; }
     public Vector3 LowerBound { get; private set; }
     public Vector3 UpperBound { get; private set; }
-    public Vector3 Center { get; private set; }
     public Vector3 Extend { get; private set; }
 
     public Vector3 CenterEnlargedAABB { get; private set; }
