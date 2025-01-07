@@ -71,4 +71,11 @@ public struct AABB
         Vector3 diagonal = UpperBound - LowerBound;
         return 2.0f * (diagonal.x * diagonal.y + diagonal.y * diagonal.z + diagonal.z * diagonal.x);
     }
+
+    public static bool IsColliding(AABB a, AABB b)
+    {
+         return a.LowerBound.x <= b.UpperBound.x && a.UpperBound.x >= b.LowerBound.x
+         && a.LowerBound.y <= b.UpperBound.y && a.UpperBound.y >= b.LowerBound.y
+         && a.LowerBound.z <= b.UpperBound.z && a.UpperBound.z >= b.LowerBound.z;
+    }
 }

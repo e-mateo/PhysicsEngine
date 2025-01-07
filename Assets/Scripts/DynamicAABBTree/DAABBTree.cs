@@ -3,11 +3,26 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+public struct CollisionPair
+{
+    //TODO: Remplace with RigidBody
+    public Collider colliderA;
+    public Collider colliderB;
+
+    public CollisionPair(Collider A, Collider B)
+    {
+        colliderA = A;
+        colliderB = B;
+    }
+}
+
 public class DAABBTree : MonoBehaviour
 {
     AABBTreeNode RootNode = null;
     List<AABBTreeNode> NodeList = new List<AABBTreeNode>();
     List<AABBTreeNode> LeafNodeList = new List<AABBTreeNode>();
+
+    List<CollisionPair> collisionPairs = new List<CollisionPair>();
 
     static DAABBTree instance = null;
     static public DAABBTree Instance
@@ -32,6 +47,17 @@ public class DAABBTree : MonoBehaviour
 
     private void Update()
     {
+        UpdateABBBTree();
+        UpdateCollisionPairs();
+    }
+
+    public List<CollisionPair> GetCollisionPairs()
+    {
+        return collisionPairs;
+    }
+
+    public void UpdateABBBTree()
+    {
         List<AABBTreeNode> nodeToUpdate = new List<AABBTreeNode>();
         foreach (AABBTreeNode node in LeafNodeList)
         {
@@ -39,18 +65,19 @@ public class DAABBTree : MonoBehaviour
             if (node.AABBBox.HasExitEnlargedAABB())
             {
                 node.AABBBox.UpdateEnlargedAABB();
-                nodeToUpdate.Add(node); 
+                nodeToUpdate.Add(node);
             }
         }
 
-        for(int i = 0; i < nodeToUpdate.Count; i++)
+        for (int i = 0; i < nodeToUpdate.Count; i++)
         {
             RemoveLeafNode(nodeToUpdate[i]);
             CreateLeafNode(nodeToUpdate[i].AABBBox, nodeToUpdate[i].collider);
         }
     }
 
-    public void SetRootNode(AABBTreeNode node)
+
+    private void SetRootNode(AABBTreeNode node)
     { 
         RootNode = node;
     }
@@ -288,6 +315,84 @@ public class DAABBTree : MonoBehaviour
         return cost;
     }
 
+    public void UpdateCollisionPairs()
+    {
+        collisionPairs.Clear();
+
+        if(RootNode == null || RootNode.IsLeaf)
+        {
+            return;
+        }
+
+        ResetHasCrossedChildren(RootNode);
+        CheckCollisionPair(RootNode.childA, RootNode.childB);
+    }
+
+    private void ResetHasCrossedChildren(AABBTreeNode node)
+    {
+       if(node != null)
+       {
+            node.bHasCrossedChildren = false;
+            ResetHasCrossedChildren(node.childA);
+            ResetHasCrossedChildren(node.childB);
+       }
+    }
+
+    public void CheckCollisionPair(AABBTreeNode nodeA, AABBTreeNode nodeB)
+    {
+        bool AABBCollides = AABB.IsColliding(nodeA.AABBBox, nodeB.AABBBox);
+
+        if (nodeA.IsLeaf && nodeB.IsLeaf)
+        {
+            if(AABBCollides)
+            {
+                collisionPairs.Add(new CollisionPair(nodeA.collider, nodeB.collider));
+            }
+        }
+        else if(nodeA.IsLeaf)
+        {
+            CrossChildren(nodeB);
+
+            if (AABBCollides)
+            {
+                CheckCollisionPair(nodeA, nodeB.childA);
+                CheckCollisionPair(nodeA, nodeB.childB);
+            }
+        }
+        else if(nodeB.IsLeaf)
+        {
+            if (AABBCollides)
+            {
+                CheckCollisionPair(nodeB, nodeA.childA);
+                CheckCollisionPair(nodeB, nodeA.childB);
+            }
+
+            CrossChildren(nodeA);
+        }
+        else
+        {
+            if (AABBCollides)
+            {
+                CheckCollisionPair(nodeA.childA, nodeB.childA);
+                CheckCollisionPair(nodeA.childA, nodeB.childB);
+                CheckCollisionPair(nodeA.childB, nodeB.childA);
+                CheckCollisionPair(nodeA.childB, nodeB.childB);
+            }
+
+            CrossChildren(nodeA);
+            CrossChildren(nodeB);
+        }
+    }
+
+    private void CrossChildren(AABBTreeNode node)
+    {
+        if (!node.bHasCrossedChildren)
+        {
+            node.bHasCrossedChildren = true;
+            CheckCollisionPair(node.childA, node.childB);
+        }
+    }
+
 
 
     #region Gizmos
@@ -298,7 +403,7 @@ public class DAABBTree : MonoBehaviour
 
         foreach (AABBTreeNode node in NodeList)
         {
-            Gizmos.color = Color.red;
+            Gizmos.color = Color.blue;
             Gizmos.DrawWireCube(node.AABBBox.Center, node.AABBBox.Extend * 2f);
         }
 
@@ -306,6 +411,13 @@ public class DAABBTree : MonoBehaviour
         {
             Gizmos.color = Color.green;
             Gizmos.DrawWireCube(leaves.AABBBox.CenterEnlargedAABB, leaves.AABBBox.ExtendEnlargedAABB * 2f);
+        }
+
+        foreach(CollisionPair pair in collisionPairs)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireCube(pair.colliderA.bounds.center, pair.colliderA.bounds.extents * 2f);
+            Gizmos.DrawWireCube(pair.colliderB.bounds.center, pair.colliderB.bounds.extents * 2f);
         }
     }
 

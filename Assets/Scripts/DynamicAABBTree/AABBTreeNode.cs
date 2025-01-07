@@ -8,6 +8,8 @@ public class AABBTreeNode
     public AABBTreeNode childB;
     public AABB AABBBox;
     public Collider collider;
+    public bool bHasCrossedChildren = false;
+
     public bool IsLeaf { get; private set; }
 
     public AABBTreeNode(AABB aabbBox, Collider collider, bool bIsLeaf)
