@@ -6,6 +6,8 @@ public class CustomPhysicEngine : MonoBehaviour
     private List<CustomCollider> colliders = new List<CustomCollider>();
     [SerializeField] private DAABBTree dynamicAABBTree;
 
+    public static Vector3[] collidingTethraedron;
+
     // Singleton access
     static CustomPhysicEngine instance = null;
     static public CustomPhysicEngine Instance
@@ -24,6 +26,7 @@ public class CustomPhysicEngine : MonoBehaviour
     void Start()
     {
         colliders = new List<CustomCollider>(FindObjectsByType<CustomCollider>(FindObjectsSortMode.None));
+        collidingTethraedron = new Vector3[4];
     }
 
     // Update is called once per frame
@@ -37,7 +40,10 @@ public class CustomPhysicEngine : MonoBehaviour
                     continue;
 
                 if (CustomCollider.CheckCollision(testingCollider, otherCollider))
+                {
                     Debug.Log("Collisioooooooon !!!");
+
+                }
             }
         }
     }
@@ -82,6 +88,14 @@ public class CustomPhysicEngine : MonoBehaviour
         Gizmos.DrawLine(tet[1], tet[2]);
         Gizmos.DrawLine(tet[1], tet[3]);
         Gizmos.DrawLine(tet[2], tet[3]);
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(collidingTethraedron[0], collidingTethraedron[1]);
+        Gizmos.DrawLine(collidingTethraedron[0], collidingTethraedron[2]);
+        Gizmos.DrawLine(collidingTethraedron[0], collidingTethraedron[3]);
+        Gizmos.DrawLine(collidingTethraedron[1], collidingTethraedron[2]);
+        Gizmos.DrawLine(collidingTethraedron[1], collidingTethraedron[3]);
+        Gizmos.DrawLine(collidingTethraedron[2], collidingTethraedron[3]);
     }
 
     public void OnColliderEnable(CustomCollider collider)
