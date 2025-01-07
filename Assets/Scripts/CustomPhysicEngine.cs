@@ -1,100 +1,105 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CustomPhysicEngine : MonoBehaviour
+namespace CustomPhysic
 {
-    private List<CustomCollider> colliders = new List<CustomCollider>();
-    [SerializeField] private DAABBTree dynamicAABBTree;
-
-    public static Vector3[] collidingTethraedron;
-
-    // Singleton access
-    static CustomPhysicEngine instance = null;
-    static public CustomPhysicEngine Instance
+    public class CustomPhysicEngine : MonoBehaviour
     {
-        get
+        private List<CustomCollider> colliders = new List<CustomCollider>();
+        [SerializeField] private DAABBTree dynamicAABBTree;
+
+        public static Vector3[] collidingTethraedron;
+
+        // Singleton access
+        static CustomPhysicEngine instance = null;
+        static public CustomPhysicEngine Instance
         {
-            if (instance == null)
+            get
             {
-                instance = FindObjectOfType<CustomPhysicEngine>();
-            }
-            return instance;
-        }
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        colliders = new List<CustomCollider>(FindObjectsByType<CustomCollider>(FindObjectsSortMode.None));
-        collidingTethraedron = new Vector3[4];
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        foreach (CustomCollider testingCollider in colliders) 
-        {
-            foreach (CustomCollider otherCollider in colliders)
-            {
-                if (otherCollider == testingCollider)
-                    continue;
-
-                if (CustomCollider.CheckCollision(testingCollider, otherCollider))
+                if (instance == null)
                 {
-                    Debug.Log("Collisioooooooon !!!");
+                    instance = FindObjectOfType<CustomPhysicEngine>();
+                }
+                return instance;
+            }
+        }
 
+        // Start is called before the first frame update
+        void Start()
+        {
+            colliders = new List<CustomCollider>(FindObjectsByType<CustomCollider>(FindObjectsSortMode.None));
+            collidingTethraedron = new Vector3[4];
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+            foreach (CustomCollider testingCollider in colliders)
+            {
+                foreach (CustomCollider otherCollider in colliders)
+                {
+                    if (otherCollider == testingCollider)
+                        continue;
+
+                    CustomPhysic.CollisionInfo collisionInfo = CustomCollider.CheckCollision(testingCollider, otherCollider);
+    
+                    if (collisionInfo != null)
+                    {
+                        Debug.Log("Collisioooooooon !!!");
+
+                    }
                 }
             }
         }
-    }
 
-    /*
-    private void FixedUpdate()
-    {
-        dynamicAABBTree.UpdateTreeAndCollisionPairs();
-        List<CollisionPair> collisionPairs = dynamicAABBTree.GetCollisionPairs();
-        Debug.Log(collisionPairs.Count);
-        foreach (CollisionPair collisionPair in collisionPairs)
+        /*
+        private void FixedUpdate()
         {
-            if (CustomCollider.CheckCollision(collisionPair.colliderA, collisionPair.colliderB))
+            dynamicAABBTree.UpdateTreeAndCollisionPairs();
+            List<CollisionPair> collisionPairs = dynamicAABBTree.GetCollisionPairs();
+            Debug.Log(collisionPairs.Count);
+            foreach (CollisionPair collisionPair in collisionPairs)
             {
-                Debug.Log("Collisioooooooon !!!");
+                if (CustomCollider.CheckCollision(collisionPair.colliderA, collisionPair.colliderB))
+                {
+                    Debug.Log("Collisioooooooon !!!");
+                }
+            }
+        }*/
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawSphere(Vector3.zero, 0.2f);
+
+            if (!Application.isPlaying)
+                return;
+
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(collidingTethraedron[0], collidingTethraedron[1]);
+            Gizmos.DrawLine(collidingTethraedron[0], collidingTethraedron[2]);
+            Gizmos.DrawLine(collidingTethraedron[0], collidingTethraedron[3]);
+            Gizmos.DrawLine(collidingTethraedron[1], collidingTethraedron[2]);
+            Gizmos.DrawLine(collidingTethraedron[1], collidingTethraedron[3]);
+            Gizmos.DrawLine(collidingTethraedron[2], collidingTethraedron[3]);
+        }
+
+        public void OnColliderEnable(CustomCollider collider)
+        {
+            if (!colliders.Contains(collider))
+            {
+                colliders.Add(collider);
+                dynamicAABBTree.AddColliderToTree(collider);
             }
         }
-    }*/
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawSphere(Vector3.zero, 0.2f);
-
-        if (!Application.isPlaying)
-            return;
-
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(collidingTethraedron[0], collidingTethraedron[1]);
-        Gizmos.DrawLine(collidingTethraedron[0], collidingTethraedron[2]);
-        Gizmos.DrawLine(collidingTethraedron[0], collidingTethraedron[3]);
-        Gizmos.DrawLine(collidingTethraedron[1], collidingTethraedron[2]);
-        Gizmos.DrawLine(collidingTethraedron[1], collidingTethraedron[3]);
-        Gizmos.DrawLine(collidingTethraedron[2], collidingTethraedron[3]);
-    }
-
-    public void OnColliderEnable(CustomCollider collider)
-    {
-        if (!colliders.Contains(collider))
+        public void OnColliderDisbale(CustomCollider collider)
         {
-            colliders.Add(collider);
-            dynamicAABBTree.AddColliderToTree(collider);
-        }
-    }
-
-    public void OnColliderDisbale(CustomCollider collider)
-    {
-        if (colliders.Contains(collider))
-        {
-            colliders.Remove(collider);
-            dynamicAABBTree.RemoveColliderFromTree(collider);
+            if (colliders.Contains(collider))
+            {
+                colliders.Remove(collider);
+                dynamicAABBTree.RemoveColliderFromTree(collider);
+            }
         }
     }
 }

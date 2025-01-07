@@ -1,13 +1,16 @@
 using UnityEngine;
 
-public class GlobalParameters : MonoBehaviour
+namespace CustomPhysic
 {
-    public static GlobalParameters instance;
-
-    public Vector3 Gravity = new Vector3(0, -9.81f, 0);
-
-    private void Start()
+    public class GlobalParameters : MonoBehaviour
     {
-        instance = this;
+        public static GlobalParameters instance;
+
+        public Vector3 Gravity = new Vector3(0, -9.81f, 0);
+
+        private void Start()
+        {
+            instance = this;
+        }
     }
 }
