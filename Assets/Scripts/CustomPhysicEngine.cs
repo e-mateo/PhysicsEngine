@@ -27,32 +27,9 @@ namespace CustomPhysic
         // Start is called before the first frame update
         void Start()
         {
-            colliders = new List<CustomCollider>(FindObjectsByType<CustomCollider>(FindObjectsSortMode.None));
             collidingTethraedron = new Vector3[4];
         }
 
-        // Update is called once per frame
-        void Update()
-        {
-            foreach (CustomCollider testingCollider in colliders)
-            {
-                foreach (CustomCollider otherCollider in colliders)
-                {
-                    if (otherCollider == testingCollider)
-                        continue;
-
-                    CustomPhysic.CollisionInfo collisionInfo = CustomCollider.CheckCollision(testingCollider, otherCollider);
-    
-                    if (collisionInfo != null)
-                    {
-                        Debug.Log("Collisioooooooon !!!");
-
-                    }
-                }
-            }
-        }
-
-        /*
         private void FixedUpdate()
         {
             dynamicAABBTree.UpdateTreeAndCollisionPairs();
@@ -60,12 +37,15 @@ namespace CustomPhysic
             Debug.Log(collisionPairs.Count);
             foreach (CollisionPair collisionPair in collisionPairs)
             {
-                if (CustomCollider.CheckCollision(collisionPair.colliderA, collisionPair.colliderB))
+                CustomPhysic.CollisionInfo collisionInfo = CustomCollider.CheckCollision(collisionPair.colliderA, collisionPair.colliderB);
+    
+                if (collisionInfo != null)
                 {
                     Debug.Log("Collisioooooooon !!!");
+
                 }
             }
-        }*/
+        }
 
         private void OnDrawGizmos()
         {
