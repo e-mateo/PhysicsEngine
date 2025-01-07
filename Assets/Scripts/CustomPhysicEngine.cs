@@ -21,27 +21,28 @@ public class CustomPhysicEngine : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    //void Start()
-    //{
-    //    colliders = new List<CustomCollider>(FindObjectsByType<CustomCollider>(FindObjectsSortMode.None));
-    //}
+    void Start()
+    {
+        colliders = new List<CustomCollider>(FindObjectsByType<CustomCollider>(FindObjectsSortMode.None));
+    }
 
     // Update is called once per frame
-    //void Update()
-    //{
-    //    foreach (CustomCollider testingCollider in colliders) 
-    //    {
-    //        foreach (CustomCollider otherCollider in colliders)
-    //        {
-    //            if (otherCollider == testingCollider)
-    //                continue;
+    void Update()
+    {
+        foreach (CustomCollider testingCollider in colliders) 
+        {
+            foreach (CustomCollider otherCollider in colliders)
+            {
+                if (otherCollider == testingCollider)
+                    continue;
 
-    //            if (CustomCollider.CheckCollision(testingCollider, otherCollider))
-    //                Debug.Log("Collisioooooooon !!!");
-    //        }
-    //    }
-    //}
+                if (CustomCollider.CheckCollision(testingCollider, otherCollider))
+                    Debug.Log("Collisioooooooon !!!");
+            }
+        }
+    }
 
+    /*
     private void FixedUpdate()
     {
         dynamicAABBTree.UpdateTreeAndCollisionPairs();
@@ -54,24 +55,33 @@ public class CustomPhysicEngine : MonoBehaviour
                 Debug.Log("Collisioooooooon !!!");
             }
         }
-    }
+    }*/
 
     private void OnDrawGizmos()
     {
-        //Gizmos.color = Color.yellow;
-        //Gizmos.DrawSphere(Vector3.zero, 0.2f);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawSphere(Vector3.zero, 0.2f);
 
-        //if (!Application.isPlaying)
-        //    return;
+        if (!Application.isPlaying)
+            return;
 
+        Vector3[] tet = CustomCollider.GenerateTetrahedron(colliders[0], colliders[1]);
 
-        //Gizmos.color = Color.blue;
-        //List<Vector3> diff = CustomCollider.MinkowskiDifference(colliders[0], colliders[1]);
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(tet[0], tet[1]);
+        Gizmos.DrawLine(tet[0], tet[2]);
+        Gizmos.DrawLine(tet[0], tet[3]);
+        Gizmos.DrawLine(tet[1], tet[2]);
+        Gizmos.DrawLine(tet[1], tet[3]);
+        Gizmos.DrawLine(tet[2], tet[3]);
 
-        //foreach (Vector3 v in diff)
-        //{
-        //    Gizmos.DrawSphere(v, 0.05f);
-        //}
+        tet = CustomCollider.GenerateTetrahedron(colliders[1], colliders[0]);
+        Gizmos.DrawLine(tet[0], tet[1]);
+        Gizmos.DrawLine(tet[0], tet[2]);
+        Gizmos.DrawLine(tet[0], tet[3]);
+        Gizmos.DrawLine(tet[1], tet[2]);
+        Gizmos.DrawLine(tet[1], tet[3]);
+        Gizmos.DrawLine(tet[2], tet[3]);
     }
 
     public void OnColliderEnable(CustomCollider collider)

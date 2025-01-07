@@ -51,7 +51,7 @@ abstract public class CustomCollider : MonoBehaviour
     }
 
     public static float precision = 0.001f;
-    public static int maxIteration = 20;
+    public static int maxIteration = 5;
 
     abstract protected Vector3 Support(Vector3 dir);
 
@@ -86,7 +86,7 @@ abstract public class CustomCollider : MonoBehaviour
         tetrahedron[0] = support;
 
         // Second point creation
-        dir = support.normalized;
+        dir = -support.normalized;
         support = A.Support(dir) - B.Support(-dir);
         tetrahedron[1] = support;
 
@@ -141,10 +141,11 @@ abstract public class CustomCollider : MonoBehaviour
             Vector3 support = A.Support(dir) - B.Support(-dir);
             tetrahedron[3] = support;
 
+            if (PointInTetrahedron(lastTetrahedron, tetrahedron[3]))
+                return false;
+
             if (PointInTetrahedron(tetrahedron, Vector3.zero))
                 return true;
-            else if (PointInTetrahedron(lastTetrahedron, tetrahedron[3]))
-                return false;
         }
 
         return false;
