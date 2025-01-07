@@ -1,24 +1,28 @@
 using UnityEngine;
 
-[RequireComponent (typeof(Mesh))]
-public class CustomMeshColider : CustomCollider
+
+namespace CustomPhysic
 {
-    protected override Vector3 Support(Vector3 dir) 
+    [RequireComponent(typeof(Mesh))]
+    public class CustomMeshColider : CustomCollider
     {
-        Vector3 result = new Vector3();
-        float MaxProj = float.MinValue;
-
-        foreach (Vector3 point in mesh.vertices) 
+        protected override Vector3 Support(Vector3 dir)
         {
-            float proj = Vector3.Dot(transform.TransformPoint(point), dir.normalized);
+            Vector3 result = new Vector3();
+            float MaxProj = float.MinValue;
 
-            if (proj > MaxProj) 
+            foreach (Vector3 point in mesh.vertices)
             {
-                MaxProj = proj;
-                result = transform.TransformPoint(point);
-            }
-        }
+                float proj = Vector3.Dot(transform.TransformPoint(point), dir.normalized);
 
-        return (result + bounds.center);
+                if (proj > MaxProj)
+                {
+                    MaxProj = proj;
+                    result = transform.TransformPoint(point);
+                }
+            }
+
+            return (result + bounds.center);
+        }
     }
 }

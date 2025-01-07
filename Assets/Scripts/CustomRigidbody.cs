@@ -3,119 +3,122 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
-[Serializable]
-public class RigidbodyDebug
+namespace CustomPhysic
 {
-    [SerializeField] public bool debugAcceleration;
-    [SerializeField] public bool normalizeAcc;
-    [SerializeField] public float accLenght = 1;
-    [SerializeField] public Color accColor = Color.yellow;
-
-    [SerializeField] public bool debugImpulse;
-    [SerializeField] public bool normalizeImp;
-    [SerializeField] public float impLenght = 1;
-    [SerializeField] public Color impColor = Color.cyan;
-
-    [SerializeField] public bool debugVelocity;
-    [SerializeField] public bool normalizeVel;
-    [SerializeField] public float velLenght = 1;
-    [SerializeField] public Color velColor = Color.green;
-}
-
-public class CustomRigidbody : MonoBehaviour
-{
-    public enum ForceType
+    [Serializable]
+    public class RigidbodyDebug
     {
-        FT_Acceleration, 
-        FT_Impulse
+        [SerializeField] public bool debugAcceleration;
+        [SerializeField] public bool normalizeAcc;
+        [SerializeField] public float accLenght = 1;
+        [SerializeField] public Color accColor = Color.yellow;
+
+        [SerializeField] public bool debugImpulse;
+        [SerializeField] public bool normalizeImp;
+        [SerializeField] public float impLenght = 1;
+        [SerializeField] public Color impColor = Color.cyan;
+
+        [SerializeField] public bool debugVelocity;
+        [SerializeField] public bool normalizeVel;
+        [SerializeField] public float velLenght = 1;
+        [SerializeField] public Color velColor = Color.green;
     }
 
-    [SerializeField] bool UseGravity;
-    [SerializeField] RigidbodyDebug debug;
-
-    private Vector3 acceleration;
-    private Vector3 impulse;
-    private Vector3 velocity;
-
-    List<Vector3> Accelerations = new List<Vector3>();
-    List<Vector3> Impulses = new List<Vector3>();
-
-    public void AddForce(Vector3 force, ForceType type)
+    public class CustomRigidbody : MonoBehaviour
     {
-        switch (type) 
-        { 
-            case ForceType.FT_Acceleration:
-                Accelerations.Add(force); break;
-
-            case ForceType.FT_Impulse:
-                Impulses.Add(force); break;
-
-            default:
-                break;
-        }
-    }
-
-    private void InitVariable()
-    {
-        velocity = new Vector3(0, 0, 0);
-    }
-
-    private void CalcVelocity()
-    {
-        acceleration.Set(0,0,0);
-        impulse.Set(0,0,0);
-
-        if (UseGravity)
-            AddForce(GlobalParameters.instance.Gravity, ForceType.FT_Acceleration);
-
-        foreach (Vector3 vec in Accelerations)
+        public enum ForceType
         {
-            acceleration += vec;
-            velocity += vec * Time.fixedDeltaTime;
+            FT_Acceleration,
+            FT_Impulse
         }
 
-        foreach (Vector3 vec in Impulses)
+        [SerializeField] bool UseGravity;
+        [SerializeField] RigidbodyDebug debug;
+
+        private Vector3 acceleration;
+        private Vector3 impulse;
+        private Vector3 velocity;
+
+        List<Vector3> Accelerations = new List<Vector3>();
+        List<Vector3> Impulses = new List<Vector3>();
+
+        public void AddForce(Vector3 force, ForceType type)
         {
-            impulse += vec;
-            velocity += vec;
+            switch (type)
+            {
+                case ForceType.FT_Acceleration:
+                    Accelerations.Add(force); break;
+
+                case ForceType.FT_Impulse:
+                    Impulses.Add(force); break;
+
+                default:
+                    break;
+            }
         }
 
-        Accelerations.Clear();
-        Impulses.Clear();
-    }
-
-    #region Monobehaviour
-    private void Start()
-    {
-        InitVariable();
-    }
-
-    private void FixedUpdate()
-    {
-        CalcVelocity();
-
-        transform.position = transform.position + velocity * Time.fixedDeltaTime;
-    }
-
-    private void OnDrawGizmos()
-    {   
-        if (debug.debugAcceleration)
+        private void InitVariable()
         {
-            Gizmos.color = debug.accColor;
-            Gizmos.DrawLine(transform.position, debug.normalizeAcc ? transform.position + acceleration.normalized * debug.accLenght : transform.position + acceleration * debug.accLenght);
+            velocity = new Vector3(0, 0, 0);
         }
 
-        if (debug.debugImpulse)
+        private void CalcVelocity()
         {
-            Gizmos.color = debug.impColor;
-            Gizmos.DrawLine(transform.position, debug.normalizeImp ? transform.position + impulse.normalized * debug.impLenght : transform.position + impulse * debug.impLenght);
+            acceleration.Set(0, 0, 0);
+            impulse.Set(0, 0, 0);
+
+            if (UseGravity)
+                AddForce(GlobalParameters.instance.Gravity, ForceType.FT_Acceleration);
+
+            foreach (Vector3 vec in Accelerations)
+            {
+                acceleration += vec;
+                velocity += vec * Time.fixedDeltaTime;
+            }
+
+            foreach (Vector3 vec in Impulses)
+            {
+                impulse += vec;
+                velocity += vec;
+            }
+
+            Accelerations.Clear();
+            Impulses.Clear();
         }
 
-        if (debug.debugVelocity)
+        #region Monobehaviour
+        private void Start()
         {
-            Gizmos.color = debug.velColor;
-            Gizmos.DrawLine(transform.position, debug.normalizeVel ? transform.position + velocity.normalized * debug.velLenght : transform.position + velocity * debug.velLenght);
+            InitVariable();
         }
+
+        private void FixedUpdate()
+        {
+            CalcVelocity();
+
+            transform.position = transform.position + velocity * Time.fixedDeltaTime;
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (debug.debugAcceleration)
+            {
+                Gizmos.color = debug.accColor;
+                Gizmos.DrawLine(transform.position, debug.normalizeAcc ? transform.position + acceleration.normalized * debug.accLenght : transform.position + acceleration * debug.accLenght);
+            }
+
+            if (debug.debugImpulse)
+            {
+                Gizmos.color = debug.impColor;
+                Gizmos.DrawLine(transform.position, debug.normalizeImp ? transform.position + impulse.normalized * debug.impLenght : transform.position + impulse * debug.impLenght);
+            }
+
+            if (debug.debugVelocity)
+            {
+                Gizmos.color = debug.velColor;
+                Gizmos.DrawLine(transform.position, debug.normalizeVel ? transform.position + velocity.normalized * debug.velLenght : transform.position + velocity * debug.velLenght);
+            }
+        }
+        #endregion
     }
-    #endregion
 }
