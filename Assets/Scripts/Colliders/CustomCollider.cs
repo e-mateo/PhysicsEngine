@@ -63,8 +63,17 @@ abstract public class CustomCollider : MonoBehaviour
     private static bool IsPointSameSideOfPlane(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Vector3 point)
     {
         Vector3 normal = Vector3.Cross(v2 - v1, v3 - v1);
-        float dotv4 = Vector3.Dot(normal, v4 - v1);
-        float dotP = Vector3.Dot(normal, point - v1);
+        Vector3 center = new Vector3((v1.x + v2.x + v3.x) / 3, 
+                                        (v1.y + v2.y + v3.y) / 3, 
+                                        (v1.z + v2.z + v3.z) / 3);
+
+        float dotv4 = Vector3.Dot(normal, v4 - center);
+
+        // v4 is on the same plane
+        if (dotv4 == 0)
+            return false;
+
+        float dotP = Vector3.Dot(normal, point - center);
         return Mathf.Sign(dotv4) == Mathf.Sign(dotP);
     }
 
