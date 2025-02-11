@@ -15,10 +15,11 @@ namespace CustomPhysic
 
     abstract public class CustomCollider : MonoBehaviour
     {
+        [SerializeField] protected CustomPhysicMaterial physicsMaterial;
+
         protected Mesh mesh;
         protected Renderer renderer;
         protected CustomRigidbody customRigidbody;
-
         public Bounds bounds { get { return mesh.bounds; } }
         public Bounds worldBounds { get { return renderer.bounds; } }
 

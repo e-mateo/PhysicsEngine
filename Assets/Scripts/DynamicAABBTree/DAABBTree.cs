@@ -50,7 +50,7 @@ namespace CustomPhysic
             foreach (KeyValuePair<CustomCollider, AABBTreeNode> node in leafNodes)
             {
                 AABBTreeNode treeNode = node.Value;
-                treeNode.AABBBox.UpdateAABB(treeNode.collider.worldBounds.center);
+                treeNode.AABBBox.UpdateAABB(treeNode.collider);
                 if (treeNode.AABBBox.HasExitEnlargedAABB())
                 {
                     treeNode.AABBBox.UpdateEnlargedAABB();
@@ -72,7 +72,7 @@ namespace CustomPhysic
 
         private void CreateLeafNode(CustomCollider collider)
         {
-            AABB AABBBox = new AABB(collider.worldBounds.center, collider.worldBounds.extents);
+            AABB AABBBox = new AABB(collider);
             AABBTreeNode newLeafNode = new AABBTreeNode(AABBBox, collider, true);
             nodes.Add(newLeafNode);
             leafNodes.Add(collider, newLeafNode);

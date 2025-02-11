@@ -32,7 +32,10 @@ namespace CustomPhysic
             FT_Impulse
         }
 
-        [SerializeField] bool UseGravity;
+        [SerializeField] float mass;
+        [SerializeField] bool useGravity;
+        [SerializeField] bool isKinematic;
+        
         [SerializeField] RigidbodyDebug debug;
 
         private Vector3 acceleration;
@@ -67,7 +70,7 @@ namespace CustomPhysic
             acceleration.Set(0, 0, 0);
             impulse.Set(0, 0, 0);
 
-            if (UseGravity)
+            if (useGravity)
                 AddForce(GlobalParameters.instance.Gravity, ForceType.FT_Acceleration);
 
             foreach (Vector3 vec in Accelerations)
@@ -94,6 +97,8 @@ namespace CustomPhysic
 
         private void FixedUpdate()
         {
+            if(isKinematic) return;
+
             CalcVelocity();
 
             transform.position = transform.position + velocity * Time.fixedDeltaTime;

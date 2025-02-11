@@ -15,12 +15,12 @@ namespace CustomPhysic
         public Vector3 UpperBoundEnlargedAABB { get; private set; }
         public Vector3 ExtendEnlargedAABB { get; private set; }
 
-        public AABB(Vector3 center, Vector3 extend)
+        public AABB(CustomCollider collider)
         {
-            Center = center;
-            Extend = extend;
-            LowerBound = center - extend;
-            UpperBound = center + extend;
+            Center = collider.worldBounds.center;
+            Extend = collider.worldBounds.extents;
+            LowerBound = Center - Extend;
+            UpperBound = Center + Extend;
 
             CenterEnlargedAABB = Center;
             ExtendEnlargedAABB = Extend + new Vector3(ENCAPSULATED_ADDED_EXTEND, ENCAPSULATED_ADDED_EXTEND, ENCAPSULATED_ADDED_EXTEND);
@@ -28,11 +28,24 @@ namespace CustomPhysic
             UpperBoundEnlargedAABB = CenterEnlargedAABB + ExtendEnlargedAABB;
         }
 
-        public void UpdateAABB(Vector3 center)
+        public AABB(Vector3 center, Vector3 extends)
         {
             Center = center;
-            LowerBound = center - Extend;
-            UpperBound = center + Extend;
+            Extend = extends;
+            LowerBound = Center - Extend;
+            UpperBound = Center + Extend;
+
+            CenterEnlargedAABB = Center;
+            ExtendEnlargedAABB = Extend + new Vector3(ENCAPSULATED_ADDED_EXTEND, ENCAPSULATED_ADDED_EXTEND, ENCAPSULATED_ADDED_EXTEND);
+            LowerBoundEnlargedAABB = CenterEnlargedAABB - ExtendEnlargedAABB;
+            UpperBoundEnlargedAABB = CenterEnlargedAABB + ExtendEnlargedAABB;
+        }
+
+        public void UpdateAABB(CustomCollider collider)
+        {
+            Center = collider.worldBounds.center;
+            LowerBound = Center - Extend;
+            UpperBound = Center + Extend;
         }
 
         public void UpdateEnlargedAABB()
