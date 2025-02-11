@@ -7,6 +7,7 @@ namespace CustomPhysic
     [RequireComponent(typeof(Mesh))]
     public class CustomMeshColider : CustomCollider
     {
+        Vector3 SupportSelected;
 
         protected override Vector3 Support(Vector3 dir)
         {
@@ -23,15 +24,13 @@ namespace CustomPhysic
                 }
             }
 
-            return (result + bounds.center);
+            SupportSelected = result;
+            return result;
         }
 
         private void OnDrawGizmosSelected()
         {
-            foreach (Vector3 point in mesh.vertices)
-            {
-                Gizmos.DrawSphere(transform.TransformPoint(point) + bounds.center, 0.1f);
-            }
+            Gizmos.DrawSphere(SupportSelected, 0.1f);
         }
     }
 
