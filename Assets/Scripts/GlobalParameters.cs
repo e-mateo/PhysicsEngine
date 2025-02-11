@@ -1,5 +1,5 @@
 using UnityEngine;
-
+    
 namespace CustomPhysic
 {
     public class GlobalParameters : MonoBehaviour

@@ -8,6 +8,7 @@ namespace CustomPhysic
     {
         private List<CustomCollider> colliders = new List<CustomCollider>();
         [SerializeField] private DAABBTree dynamicAABBTree;
+        List<CollisionInfo> collisionsa;
 
         public static Vector3[] collidingTethraedron;
 
@@ -33,8 +34,8 @@ namespace CustomPhysic
 
         private void FixedUpdate()
         {
-            List<CollisionInfo> collisions = CollisionDetection();
-            CollisionResponse(collisions);
+            collisionsa = CollisionDetection();
+            CollisionResponse(collisionsa);
         }
 
         private List<CollisionInfo> CollisionDetection()
@@ -48,7 +49,7 @@ namespace CustomPhysic
                 CollisionInfo collisionInfo = CustomCollider.CheckCollision(collisionPair.colliderA, collisionPair.colliderB);
                 if (collisionInfo != null)
                 {
-                    Debug.Log("Colision detected (" + collisionPair.colliderA.gameObject.name + ", " + collisionPair.colliderB.gameObject.name + ")");
+                    Debug.Log("Colision detected (" + collisionPair.colliderA.gameObject.name + ", " + collisionPair.colliderB.gameObject.name + ") \n Penetration : " + collisionInfo.penetration);
                     collisions.Add(collisionInfo);
                 }
             }
@@ -77,6 +78,12 @@ namespace CustomPhysic
             Gizmos.DrawLine(collidingTethraedron[1], collidingTethraedron[2]);
             Gizmos.DrawLine(collidingTethraedron[1], collidingTethraedron[3]);
             Gizmos.DrawLine(collidingTethraedron[2], collidingTethraedron[3]);
+
+            Gizmos.color = Color.green;
+            foreach (CollisionInfo collision in collisionsa)
+            {
+                Gizmos.DrawSphere(collision.contact, 0.1f);
+            }
         }
 
         public void OnColliderEnable(CustomCollider collider)
