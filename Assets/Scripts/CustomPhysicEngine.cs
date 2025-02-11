@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -47,6 +48,7 @@ namespace CustomPhysic
                 CollisionInfo collisionInfo = CustomCollider.CheckCollision(collisionPair.colliderA, collisionPair.colliderB);
                 if (collisionInfo != null)
                 {
+                    Debug.Log("Colision detected (" + collisionPair.colliderA.gameObject.name + ", " + collisionPair.colliderB.gameObject.name + ")");
                     collisions.Add(collisionInfo);
                 }
             }
