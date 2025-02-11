@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using CustomPhysic;
+
 public class CustomBoxCollider : CustomCollider
 {
     [SerializeField] Vector3 origin = Vector3.zero;

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -6,11 +7,11 @@ namespace CustomPhysic
     [RequireComponent(typeof(Mesh))]
     public class CustomMeshColider : CustomCollider
     {
+
         protected override Vector3 Support(Vector3 dir)
         {
             Vector3 result = new Vector3();
             float MaxProj = float.MinValue;
-
             foreach (Vector3 point in mesh.vertices)
             {
                 float proj = Vector3.Dot(transform.TransformPoint(point), dir.normalized);
@@ -24,5 +25,14 @@ namespace CustomPhysic
 
             return (result + bounds.center);
         }
+
+        private void OnDrawGizmosSelected()
+        {
+            foreach (Vector3 point in mesh.vertices)
+            {
+                Gizmos.DrawSphere(transform.TransformPoint(point) + bounds.center, 0.1f);
+            }
+        }
     }
+
 }
