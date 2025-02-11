@@ -147,14 +147,10 @@ namespace CustomPhysic
             if (PointInTetrahedron(tetrahedron, Vector3.zero))
             {
                 CustomPhysicEngine.collidingTethraedron = tetrahedron;
+                collisionInfo.contact = A.Support(B.gameObject.transform.position - A.gameObject.transform.position);
 
-                collisionInfo.contact = tetrahedron[3];
-
-                Vector3 dir = Vector3.Cross(tetrahedron[1] - tetrahedron[0], tetrahedron[2] - tetrahedron[0]);
-                Vector3 supportA = A.Support(dir);
-                Vector3 supportB = B.Support(dir);
-                collisionInfo.penetration = Vector3.Distance(supportA, supportB);
-
+                Vector3 contactOther = B.Support(A.gameObject.transform.position - B.gameObject.transform.position);
+                collisionInfo.penetration = Vector3.Distance(collisionInfo.contact, contactOther);
                 return collisionInfo;
             }
 
@@ -173,8 +169,9 @@ namespace CustomPhysic
                 Vector3 toZero = Vector3.zero - tetrahedron[0];
                 if (Vector3.Dot(dir, toZero) < 0)
                     dir = -dir;
+
                 Vector3 supportA = A.Support(dir);
-                Vector3 supportB = B.Support(dir);
+                Vector3 supportB = B.Support(-dir);
                 Vector3 support = supportA - supportB;
                 tetrahedron[3] = support;
 
@@ -187,8 +184,10 @@ namespace CustomPhysic
                 if (PointInTetrahedron(tetrahedron, Vector3.zero))
                 {
                     CustomPhysicEngine.collidingTethraedron = tetrahedron;
-                    collisionInfo.contact = supportA;
-                    collisionInfo.penetration = Vector3.Distance(supportA, supportB);
+                    collisionInfo.contact = A.Support(B.gameObject.transform.position - A.gameObject.transform.position);
+
+                    Vector3 contactOther = B.Support(A.gameObject.transform.position - B.gameObject.transform.position);
+                    collisionInfo.penetration = Vector3.Distance(collisionInfo.contact, contactOther);
 
                     return collisionInfo;
                 }
@@ -196,6 +195,6 @@ namespace CustomPhysic
 
             return null;
         }
-        #endregion
     }
+        #endregion
 }
