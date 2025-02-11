@@ -32,20 +32,33 @@ namespace CustomPhysic
 
         private void FixedUpdate()
         {
+            List<CollisionInfo> collisions = CollisionDetection();
+            CollisionResponse(collisions);
+        }
+
+        private List<CollisionInfo> CollisionDetection()
+        {
+            List<CollisionInfo> collisions = new List<CollisionInfo>();
             dynamicAABBTree.UpdateTreeAndCollisionPairs();
             List<CollisionPair> collisionPairs = dynamicAABBTree.GetCollisionPairs();
-            Debug.Log(collisionPairs.Count);
+
             foreach (CollisionPair collisionPair in collisionPairs)
             {
-                CustomPhysic.CollisionInfo collisionInfo = CustomCollider.CheckCollision(collisionPair.colliderA, collisionPair.colliderB);
-    
+                CollisionInfo collisionInfo = CustomCollider.CheckCollision(collisionPair.colliderA, collisionPair.colliderB);
                 if (collisionInfo != null)
                 {
-                    Debug.Log("Collisioooooooon !!!");
-
+                    collisions.Add(collisionInfo);
                 }
             }
+
+            return collisions;
         }
+
+        private void CollisionResponse(List<CollisionInfo> collisions)
+        {
+
+        }
+
 
         private void OnDrawGizmos()
         {

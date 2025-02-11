@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEngine;
@@ -18,6 +17,7 @@ namespace CustomPhysic
     {
         protected Mesh mesh;
         protected Renderer renderer;
+        protected CustomRigidbody customRigidbody;
 
         public Bounds bounds { get { return mesh.bounds; } }
         public Bounds worldBounds { get { return renderer.bounds; } }
@@ -27,6 +27,7 @@ namespace CustomPhysic
         {
             mesh = GetComponent<MeshFilter>().mesh;
             renderer = GetComponent<Renderer>();
+            customRigidbody = GetComponent<CustomRigidbody>();
         }
 
         private void OnEnable()
