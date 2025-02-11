@@ -147,6 +147,7 @@ namespace CustomPhysic
             if (PointInTetrahedron(tetrahedron, Vector3.zero))
             {
                 CustomPhysicEngine.collidingTethraedron = tetrahedron;
+                collisionInfo.contact = A.Support(Vector3.Cross(tetrahedron[1] - tetrahedron[0], tetrahedron[2] - tetrahedron[0]));
                 return collisionInfo;
             }
 
@@ -177,6 +178,7 @@ namespace CustomPhysic
                 if (PointInTetrahedron(tetrahedron, Vector3.zero))
                 {
                     CustomPhysicEngine.collidingTethraedron = tetrahedron;
+                    collisionInfo.contact = A.Support(dir);
 
                     return collisionInfo;
                 }
