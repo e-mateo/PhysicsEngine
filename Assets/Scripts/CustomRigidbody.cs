@@ -45,6 +45,9 @@ namespace CustomPhysic
         List<Vector3> Accelerations = new List<Vector3>();
         List<Vector3> Impulses = new List<Vector3>();
 
+        public Vector3 Velocity {  get { return velocity; } set {  velocity = value; } }
+        public float Mass { get { return mass; } set { mass = value; } }
+
         public void AddForce(Vector3 force, ForceType type)
         {
             switch (type)

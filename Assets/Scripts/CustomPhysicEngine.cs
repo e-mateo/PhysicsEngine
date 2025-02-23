@@ -8,7 +8,7 @@ namespace CustomPhysic
     {
         private List<CustomCollider> colliders = new List<CustomCollider>();
         [SerializeField] private DAABBTree dynamicAABBTree;
-        List<CollisionInfo> collisionsa;
+        List<CollisionInfo> collisions = new List<CollisionInfo>();
 
         public static Vector3[] collidingTethraedron;
 
@@ -34,8 +34,8 @@ namespace CustomPhysic
 
         private void FixedUpdate()
         {
-            collisionsa = CollisionDetection();
-            CollisionResponse(collisionsa);
+            collisions = CollisionDetection();
+            CollisionResponse(collisions);
         }
 
         private List<CollisionInfo> CollisionDetection()
@@ -59,7 +59,53 @@ namespace CustomPhysic
 
         private void CollisionResponse(List<CollisionInfo> collisions)
         {
+            foreach(CollisionInfo collision in collisions)
+            {
+                CustomPhysic.CustomRigidbody RB_A = collision.objectA.RB;
+                CustomPhysic.CustomRigidbody RB_B = collision.objectB.RB;
+                if(RB_A == null && RB_B == null)
+                {
+                    return;
+                }
+                Vector3 vel_A = RB_A != null ? RB_A.Velocity : Vector3.zero;
+                Vector3 vel_B = RB_B != null ? RB_B.Velocity : Vector3.zero;
 
+                float relativeVelocity = Vector3.Dot(vel_A - vel_B, collision.normal);
+                if(relativeVelocity > 0)
+                {
+                    continue;
+                }
+
+                // Not sure if we should do an average ?
+                float restitution = (collision.objectA.PM.bouciness + collision.objectB.PM.bouciness) * 0.5f;
+
+                float invMass_A = RB_A != null ? 1f / RB_A.Mass : 0f;
+                float invMass_B = RB_B != null ? 1f / RB_B.Mass : 0f;
+
+                // Impulse
+                float J = (-(1 + restitution) * relativeVelocity) / (invMass_A + invMass_B);
+                if(RB_A != null)
+                {
+                    RB_A.Velocity += J * invMass_A * collision.normal;
+                }
+                if (RB_B != null)
+                {
+                    RB_B.Velocity -= J * invMass_B * collision.normal;
+                }
+
+
+                //Position Correction
+                float damping = 0.2f;
+                float correction = (collision.penetration * damping) / (invMass_A + invMass_B);
+                if (RB_A != null)
+                {
+                    RB_A.transform.position += correction * invMass_A * collision.normal;
+                }
+                if (RB_B != null)
+                {
+                    RB_B.transform.position -= correction * invMass_B * collision.normal;
+                }
+            }
         }
 
 
@@ -80,7 +126,7 @@ namespace CustomPhysic
             Gizmos.DrawLine(collidingTethraedron[2], collidingTethraedron[3]);
 
             Gizmos.color = Color.green;
-            foreach (CollisionInfo collision in collisionsa)
+            foreach (CollisionInfo collision in collisions)
             {
                 Gizmos.DrawSphere(collision.contact, 0.1f);
             }
