@@ -27,6 +27,7 @@ namespace CustomPhysic
         protected Vector3 lastPosition;
 
         static protected float minDistanceToMove = 0.05f;
+        static protected int maxEPAIteration = 10;
 
         protected bool moved;
         public bool Moved { get { return moved; } }
@@ -239,16 +240,18 @@ namespace CustomPhysic
 
             Vector3 minNormal = Vector3.zero;
             float minDistance = float.MaxValue;
+            int iteration = 0;
 
-            while(minDistance == float.MaxValue)
+            while(minDistance == float.MaxValue && iteration < maxEPAIteration)
             {
+                iteration++;
                 minNormal = new Vector3(normals[minFace].x, normals[minFace].y, normals[minFace].z);
                 minDistance = normals[minFace].w;
 
                 Vector3 support = A.Support(minNormal) - B.Support(-minNormal);
                 float sDistance = Vector3.Dot(minNormal, support);
 
-                if (Mathf.Abs(sDistance - minDistance) > 0.001f)
+                if (Mathf.Abs(sDistance - minDistance) > 0.1f)
                 {
                     minDistance = float.MaxValue;
 
@@ -307,6 +310,13 @@ namespace CustomPhysic
 
             collisionInfo.normal = -minNormal.normalized;
             collisionInfo.penetration = minDistance + 0.001f;
+
+            if (iteration >= maxEPAIteration)
+            {
+
+                collisionInfo.normal = Vector3.zero;
+                collisionInfo.penetration = 0;
+            }
         }
 
 

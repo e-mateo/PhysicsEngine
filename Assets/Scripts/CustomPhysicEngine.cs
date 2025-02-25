@@ -48,7 +48,7 @@ namespace CustomPhysic
             {
                 if(collisionPair.colliderA.RB == null && collisionPair.colliderB.RB == null)
                 {
-                    if (!collisionPair.colliderA.Moved && !collisionPair.colliderA.Moved)
+                    if (!collisionPair.colliderA.Moved && !collisionPair.colliderB.Moved)
                         continue;
 
                 }
