@@ -29,6 +29,7 @@ namespace CustomPhysic
         public CustomRigidbody RB { get { return customRigidbody; } }
         public CustomPhysicMaterial PM { get { return physicsMaterial; } }
 
+        [SerializeField] protected bool bShowAABBBox;
 
 
         private void Awake()
@@ -52,6 +53,11 @@ namespace CustomPhysic
             {
                 CustomPhysicEngine.Instance.OnColliderDisbale(this);
             }
+        }
+
+        public virtual Vector3 GetAABBExtends()
+        {
+            return worldBounds.extents;
         }
 
         #region Statics
@@ -357,4 +363,7 @@ namespace CustomPhysic
 
     }
         #endregion
+
+
+   
 }

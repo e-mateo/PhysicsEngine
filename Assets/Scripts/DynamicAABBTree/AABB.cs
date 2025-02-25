@@ -18,7 +18,7 @@ namespace CustomPhysic
         public AABB(CustomCollider collider)
         {
             Center = collider.worldBounds.center;
-            Extend = collider.worldBounds.extents;
+            Extend = collider.GetAABBExtends();
             LowerBound = Center - Extend;
             UpperBound = Center + Extend;
 

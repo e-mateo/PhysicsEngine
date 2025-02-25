@@ -1,14 +1,36 @@
 using UnityEngine;
 using CustomPhysic;
-using System.Drawing;
 using System.Collections.Generic;
-using static UnityEngine.UI.GridLayoutGroup;
-using static UnityEngine.UI.Image;
 
 public class CustomBoxCollider : CustomCollider
 {
-    [SerializeField] Vector3 extend = Vector3.one;
+    [SerializeField] Vector3 extend = new Vector3(0.5f, 0.5f, 0.5f);
 
+    public override Vector3 GetAABBExtends()
+    {
+        float extendX = 0f;
+        float extendY = 0f;
+        float extendZ = 0f;
+
+        foreach (Vector3 corner in GetCubeCorner())
+        {
+            Vector3 local = corner - transform.position;
+            if(Mathf.Abs(local.x) > extendX)
+            {
+                extendX = Mathf.Abs(local.x);
+            }
+            if (Mathf.Abs(local.y) > extendY)
+            {
+                extendY = Mathf.Abs(local.y);
+            }
+            if (Mathf.Abs(local.z) > extendZ)
+            {
+                extendZ = Mathf.Abs(local.z);
+            }
+        }
+
+        return new Vector3(extendX, extendY, extendZ);
+    }
 
     protected override Vector3 Support(Vector3 dir)
     {
@@ -35,8 +57,14 @@ public class CustomBoxCollider : CustomCollider
 
         Matrix4x4 tempMatrix = Gizmos.matrix;
         Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
-        Gizmos.DrawWireCube(Vector3.zero, extend);
+        Gizmos.DrawWireCube(Vector3.zero, extend * 2f);
         Gizmos.matrix = tempMatrix;
+
+        if (bShowAABBBox)
+        {
+            Gizmos.color = UnityEngine.Color.red;
+            Gizmos.DrawWireCube(transform.position, GetAABBExtends() * 2f);
+        }
     }
 
     private List<Vector3> GetCubeCorner()
@@ -49,7 +77,7 @@ public class CustomBoxCollider : CustomCollider
             {
                 for (int z = 0; z <= 1; z++)
                 {
-                    Vector3 localPoint = 0.5f * new Vector3(
+                    Vector3 localPoint = new Vector3(
                         x == 0 ? extend.x : -extend.x,
                         y == 0 ? extend.y : -extend.y,
                         z == 0 ? extend.z : -extend.z);

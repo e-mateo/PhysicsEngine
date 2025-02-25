@@ -5,6 +5,10 @@ public class CustomSphereCollider : CustomCollider
 {
     [SerializeField] float radius = 1.0f;
 
+    public override Vector3 GetAABBExtends()
+    {
+        return new Vector3(radius, radius, radius);
+    }
     protected override Vector3 Support(Vector3 dir)
     {
         return transform.position + (radius * dir.normalized);
@@ -12,7 +16,16 @@ public class CustomSphereCollider : CustomCollider
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = new Color(193f / 255f, 63f / 255f, 240f / 255f);
-        Gizmos.DrawWireSphere(transform.position, radius);
+        Gizmos.color = Color.red;
+        Matrix4x4 tempMatrix = Gizmos.matrix;
+        Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
+        Gizmos.DrawWireSphere(Vector3.zero, radius);
+        Gizmos.matrix = tempMatrix;
+
+        if (bShowAABBBox)
+        {
+            Gizmos.color = UnityEngine.Color.red;
+            Gizmos.DrawWireCube(transform.position, GetAABBExtends() * 2f);
+        }
     }
 }

@@ -9,6 +9,11 @@ namespace CustomPhysic
     {
         Vector3 SupportSelected;
 
+        public override Vector3 GetAABBExtends()
+        {
+            return worldBounds.extents;
+        }
+
         protected override Vector3 Support(Vector3 dir)
         {
             Vector3 result = new Vector3();
@@ -31,6 +36,12 @@ namespace CustomPhysic
         private void OnDrawGizmosSelected()
         {
             Gizmos.DrawSphere(SupportSelected, 0.1f);
+
+            if (bShowAABBBox)
+            {
+                Gizmos.color = UnityEngine.Color.red;
+                Gizmos.DrawWireCube(transform.position, GetAABBExtends() * 2f);
+            }
         }
     }
 
