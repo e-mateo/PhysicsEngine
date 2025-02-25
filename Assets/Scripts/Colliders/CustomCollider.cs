@@ -29,7 +29,7 @@ namespace CustomPhysic
         static protected float minDistanceToMove = 0.05f;
 
         protected bool moved;
-        protected bool Moved { get { return moved; } }
+        public bool Moved { get { return moved; } }
         public Bounds bounds { get { return mesh.bounds; } }
         public Bounds worldBounds { get { return renderer.bounds; } }
         public CustomRigidbody RB { get { return customRigidbody; } }

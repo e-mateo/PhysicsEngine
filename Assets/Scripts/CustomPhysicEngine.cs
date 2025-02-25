@@ -48,7 +48,9 @@ namespace CustomPhysic
             {
                 if(collisionPair.colliderA.RB == null && collisionPair.colliderB.RB == null)
                 {
-                    continue;
+                    if (!collisionPair.colliderA.Moved && !collisionPair.colliderA.Moved)
+                        continue;
+
                 }
 
                 CollisionInfo collisionInfo = CustomCollider.CheckCollision(collisionPair.colliderA, collisionPair.colliderB);
