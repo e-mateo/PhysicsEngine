@@ -56,7 +56,10 @@ namespace CustomPhysic
                 CollisionInfo collisionInfo = CustomCollider.CheckCollision(collisionPair.colliderA, collisionPair.colliderB);
                 if (collisionInfo != null)
                 {
-                    Debug.Log("Colision detected (" + collisionPair.colliderA.gameObject.name + ", " + collisionPair.colliderB.gameObject.name + ") \n Penetration : " + collisionInfo.penetration);
+                    Debug.Log("Colision detected (" + collisionPair.colliderA.gameObject.name + ", " + collisionPair.colliderB.gameObject.name 
+                                    + ") \n Penetration : " + collisionInfo.penetration
+                                    + "\n Normal: " + collisionInfo.normal);
+                                
                     collisions.Add(collisionInfo);
                 }
             }

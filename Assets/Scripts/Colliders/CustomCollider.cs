@@ -27,7 +27,7 @@ namespace CustomPhysic
         protected Vector3 lastPosition;
 
         static protected float minDistanceToMove = 0.05f;
-        static protected int maxEPAIteration = 10;
+        static protected int maxEPAIteration = 5;
 
         protected bool moved;
         public bool Moved { get { return moved; } }
@@ -259,7 +259,7 @@ namespace CustomPhysic
                 Vector3 support = A.Support(minNormal) - B.Support(-minNormal);
                 float sDistance = Vector3.Dot(minNormal, support);
 
-                if (Mathf.Abs(sDistance - minDistance) > 0.1f)
+                if (Mathf.Abs(sDistance - minDistance) > 0.05f)
                 {
                     minDistance = float.MaxValue;
 
