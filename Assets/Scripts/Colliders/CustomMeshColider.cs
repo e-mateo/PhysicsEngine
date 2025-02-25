@@ -35,7 +35,9 @@ namespace CustomPhysic
 
         private void OnDrawGizmosSelected()
         {
-            Gizmos.DrawSphere(SupportSelected, 0.1f);
+            Gizmos.color = new UnityEngine.Color(193f / 255f, 63f / 255f, 240f / 255f);
+
+            Gizmos.DrawWireMesh(mesh, transform.position, transform.rotation);
 
             if (bShowAABBBox)
             {

@@ -24,6 +24,13 @@ namespace CustomPhysic
         protected Mesh mesh;
         protected Renderer renderer;
         protected CustomRigidbody customRigidbody;
+        protected Vector3 lastPosition;
+
+        static protected float minDistanceToMove = 0.05f;
+        static protected int maxEPAIteration = 10;
+
+        protected bool moved;
+        public bool Moved { get { return moved; } }
         public Bounds bounds { get { return mesh.bounds; } }
         public Bounds worldBounds { get { return renderer.bounds; } }
         public CustomRigidbody RB { get { return customRigidbody; } }
@@ -31,12 +38,23 @@ namespace CustomPhysic
 
         [SerializeField] protected bool bShowAABBBox;
 
+        private void FixedUpdate()
+        {
+            if (Vector3.Distance(lastPosition, transform.position) < minDistanceToMove)
+                moved = true;
+            else 
+                moved = false;
+        
+
+            lastPosition.Set(transform.position.x, transform.position.y, transform.position.z);
+        }
 
         private void Awake()
         {
             mesh = GetComponent<MeshFilter>().mesh;
             renderer = GetComponent<Renderer>();
             customRigidbody = GetComponent<CustomRigidbody>();
+            lastPosition = transform.position;
         }
 
         private void OnEnable()
@@ -230,16 +248,18 @@ namespace CustomPhysic
 
             Vector3 minNormal = Vector3.zero;
             float minDistance = float.MaxValue;
+            int iteration = 0;
 
-            while(minDistance == float.MaxValue)
+            while(minDistance == float.MaxValue && iteration < maxEPAIteration)
             {
+                iteration++;
                 minNormal = new Vector3(normals[minFace].x, normals[minFace].y, normals[minFace].z);
                 minDistance = normals[minFace].w;
 
                 Vector3 support = A.Support(minNormal) - B.Support(-minNormal);
                 float sDistance = Vector3.Dot(minNormal, support);
 
-                if (Mathf.Abs(sDistance - minDistance) > 0.001f)
+                if (Mathf.Abs(sDistance - minDistance) > 0.1f)
                 {
                     minDistance = float.MaxValue;
 
@@ -298,6 +318,13 @@ namespace CustomPhysic
 
             collisionInfo.normal = -minNormal.normalized;
             collisionInfo.penetration = minDistance + 0.001f;
+
+            if (iteration >= maxEPAIteration)
+            {
+
+                collisionInfo.normal = Vector3.zero;
+                collisionInfo.penetration = 0;
+            }
         }
 
 
@@ -360,7 +387,6 @@ namespace CustomPhysic
         {
             return Vector3.Dot(a.normalized, b.normalized) >= 0;
         }
-
     }
         #endregion
 
