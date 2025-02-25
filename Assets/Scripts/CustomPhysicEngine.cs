@@ -46,6 +46,11 @@ namespace CustomPhysic
 
             foreach (CollisionPair collisionPair in collisionPairs)
             {
+                if(collisionPair.colliderA.RB == null && collisionPair.colliderB.RB == null)
+                {
+                    continue;
+                }
+
                 CollisionInfo collisionInfo = CustomCollider.CheckCollision(collisionPair.colliderA, collisionPair.colliderB);
                 if (collisionInfo != null)
                 {

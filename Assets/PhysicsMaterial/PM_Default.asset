@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffa388df819de6e4681f26a5b93847d0, type: 3}
   m_Name: PM_Default
   m_EditorClassIdentifier: 
-  bouciness: 0.5
+  bouciness: 0.75
   friction: 0
