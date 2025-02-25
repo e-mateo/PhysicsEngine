@@ -10,7 +10,7 @@ public class CustomSphereCollider : CustomCollider
         return transform.position + (radius * dir.normalized);
     }
 
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
         Gizmos.color = new Color(193f / 255f, 63f / 255f, 240f / 255f);
         Gizmos.DrawWireSphere(transform.position, radius);

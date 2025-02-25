@@ -379,7 +379,6 @@ namespace CustomPhysic
         {
             return Vector3.Dot(a.normalized, b.normalized) >= 0;
         }
-
     }
         #endregion
 }
