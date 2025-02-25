@@ -40,7 +40,7 @@ namespace CustomPhysic
 
         private void FixedUpdate()
         {
-            if (Vector3.Distance(lastPosition, transform.position) < minDistanceToMove)
+            if (Vector3.Distance(lastPosition, transform.position) > minDistanceToMove)
                 moved = true;
             else 
                 moved = false;
