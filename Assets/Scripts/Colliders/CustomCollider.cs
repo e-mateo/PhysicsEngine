@@ -24,18 +24,33 @@ namespace CustomPhysic
         protected Mesh mesh;
         protected Renderer renderer;
         protected CustomRigidbody customRigidbody;
+        protected Vector3 lastPosition;
+
+        static protected float minDistanceToMove = 0.05f;
+
+        protected bool moved;
+        protected bool Moved { get { return moved; } }
         public Bounds bounds { get { return mesh.bounds; } }
         public Bounds worldBounds { get { return renderer.bounds; } }
         public CustomRigidbody RB { get { return customRigidbody; } }
         public CustomPhysicMaterial PM { get { return physicsMaterial; } }
 
+        private void FixedUpdate()
+        {
+            if (Vector3.Distance(lastPosition, transform.position) < minDistanceToMove)
+                moved = true;
+            else 
+                moved = false;
 
+            lastPosition.Set(transform.position.x, transform.position.y, transform.position.z);
+        }
 
         private void Awake()
         {
             mesh = GetComponent<MeshFilter>().mesh;
             renderer = GetComponent<Renderer>();
             customRigidbody = GetComponent<CustomRigidbody>();
+            lastPosition = transform.position;
         }
 
         private void OnEnable()
