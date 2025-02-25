@@ -155,6 +155,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   physicsMaterial: {fileID: 11400000, guid: 25207940ce7e1764184cbccc6e002300, type: 2}
+  bShowAABBBox: 0
   radius: 0.5
 --- !u!23 &255029421
 MeshRenderer:
@@ -325,6 +326,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   physicsMaterial: {fileID: 11400000, guid: 25207940ce7e1764184cbccc6e002300, type: 2}
+  bShowAABBBox: 0
   radius: 0.5
 --- !u!23 &275728753
 MeshRenderer:
@@ -502,7 +504,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   physicsMaterial: {fileID: 11400000, guid: 3cb0c9bc949a4ed4fb557f57ade1570f, type: 2}
-  extend: {x: 1, y: 1, z: 1}
+  bShowAABBBox: 0
+  extend: {x: 0.5, y: 0.5, z: 0.5}
 --- !u!23 &409607924
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -678,6 +681,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   physicsMaterial: {fileID: 11400000, guid: 25207940ce7e1764184cbccc6e002300, type: 2}
+  bShowAABBBox: 0
   radius: 0.5
 --- !u!23 &1082391653
 MeshRenderer:
@@ -761,7 +765,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   physicsMaterial: {fileID: 11400000, guid: 3cb0c9bc949a4ed4fb557f57ade1570f, type: 2}
-  extend: {x: 1, y: 1, z: 1}
+  bShowAABBBox: 0
+  extend: {x: 0.5, y: 0.5, z: 0.5}
 --- !u!23 &1209921706
 MeshRenderer:
   m_ObjectHideFlags: 0
