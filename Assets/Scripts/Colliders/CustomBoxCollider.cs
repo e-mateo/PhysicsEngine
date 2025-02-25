@@ -29,7 +29,7 @@ public class CustomBoxCollider : CustomCollider
         return result;
     }
 
-    private void OnDrawGizmosSelected()
+    private void OnDrawGizmos()
     {
         Gizmos.color = new UnityEngine.Color(193f / 255f, 63f / 255f, 240f / 255f);
 
