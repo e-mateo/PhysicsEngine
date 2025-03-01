@@ -40,6 +40,14 @@ namespace CustomPhysic
 
         [SerializeField] protected bool bShowAABBBox;
 
+        protected Matrix4x4 InvInertiaTensor;
+
+        protected virtual void SetInvInteriaTensor()
+        {
+            InvInertiaTensor = Matrix4x4.identity;
+            InvInertiaTensor = InvInertiaTensor.inverse;
+        }
+
         private void FixedUpdate()
         {
             if (Vector3.Distance(lastPosition, transform.position) > minDistanceToMove)
@@ -57,6 +65,11 @@ namespace CustomPhysic
             renderer = GetComponent<Renderer>();
             customRigidbody = GetComponent<CustomRigidbody>();
             lastPosition = transform.position;
+            SetInvInteriaTensor();
+            if(customRigidbody != null)
+            {
+                customRigidbody.SetLocalInertiaTensor(InvInertiaTensor);
+            }
         }
 
         private void OnEnable()
@@ -308,7 +321,7 @@ namespace CustomPhysic
                         }
                     }
 
-                    if (newNormals[newMinFace].w < oldMinDistance)
+                    if (newNormals.Count > newMinFace && newNormals[newMinFace].w < oldMinDistance)
                     {
                         minFace = newMinFace + normals.Count;
                     }
@@ -323,7 +336,7 @@ namespace CustomPhysic
 
             if (iteration >= maxEPAIteration)
             {
-
+                Debug.Log("MaxIteration");
                 collisionInfo.normal = Vector3.zero;
                 collisionInfo.penetration = 0;
             }

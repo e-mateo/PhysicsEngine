@@ -5,6 +5,28 @@ public class CustomSphereCollider : CustomCollider
 {
     [SerializeField] float radius = 1.0f;
 
+    protected override void SetInvInteriaTensor()
+    {
+        if (customRigidbody != null)
+        {
+            float M = customRigidbody.Mass;
+            float R = radius;
+
+            InvInertiaTensor = new Matrix4x4(
+            new Vector4((2f / 5f) * M * R * R, 0f, 0f, 0f),
+            new Vector4(0f, (2f / 5f) * M * R * R, 0f, 0f),
+            new Vector4(0f, 0f, (2f / 5f) * M * R * R, 0f),
+            new Vector4(0f, 0f, 0f, 1.0f)
+            );
+
+            InvInertiaTensor = InvInertiaTensor.inverse;
+        }
+        else
+        {
+            base.SetInvInteriaTensor();
+        }
+    }
+
     public override Vector3 GetAABBExtends()
     {
         return new Vector3(radius, radius, radius);

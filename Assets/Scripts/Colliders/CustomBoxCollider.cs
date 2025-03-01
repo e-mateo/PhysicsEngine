@@ -6,6 +6,25 @@ public class CustomBoxCollider : CustomCollider
 {
     [SerializeField] Vector3 extend = new Vector3(0.5f, 0.5f, 0.5f);
 
+    protected override void SetInvInteriaTensor()
+    {
+        if (customRigidbody != null)
+        {
+            float M = customRigidbody.Mass;
+            Vector3 E = extend;
+
+            InvInertiaTensor = new Matrix4x4(
+            new Vector4((1f / 12f) * M * ((E.y * E.y) + (E.z * E.z)), 0f, 0f, 0f),
+            new Vector4(0f, (1f / 12f) * M * ((E.x * E.x) + (E.z * E.z)), 0f, 0f),
+            new Vector4(0f, 0f, (1f / 12f) * M * ((E.x * E.x) + (E.y * E.y)), 0f),
+            new Vector4(0f, 0f, 0f, 1.0f)
+            );
+
+            InvInertiaTensor = InvInertiaTensor.inverse;
+        }
+    }
+
+
     public override Vector3 GetAABBExtends()
     {
         float extendX = 0f;

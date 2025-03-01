@@ -77,30 +77,47 @@ namespace CustomPhysic
                 {
                     continue;
                 }
-                Vector3 vel_A = RB_A != null ? RB_A.Velocity : Vector3.zero;
-                Vector3 vel_B = RB_B != null ? RB_B.Velocity : Vector3.zero;
 
-                float relativeVelocity = Vector3.Dot(vel_A - vel_B, collision.normal);
+                Vector3 rA = collision.contact - collision.objectA.transform.position;
+                Vector3 rB = collision.contact - collision.objectB.transform.position;
+                Vector3 vAi = RB_A != null ? RB_A.Velocity + Vector3.Cross(RB_A.AngVelocity, rA) : Vector3.zero;
+                Vector3 vBi = RB_B != null ? RB_B.Velocity + Vector3.Cross(RB_B.AngVelocity, rB) : Vector3.zero;
+
+                float relativeVelocity = Vector3.Dot(vAi - vBi, collision.normal);
                 if(relativeVelocity > 0)
                 {
                     continue;
                 }
 
-                // Not sure if we should do an average ?
-                float restitution = (collision.objectA.PM.bouciness + collision.objectB.PM.bouciness) * 0.5f;
+                float weightRotA = 0f, weightRotB = 0f;
+                Vector3 momentumA = Vector3.zero, momentumB = Vector3.zero;
+                if (RB_A != null)
+                {
+                    momentumA = RB_A.GetInvWorldInertiaTensor().MultiplyPoint3x4(Vector3.Cross(rA, collision.normal));
+                    weightRotA = Vector3.Dot(Vector3.Cross(momentumA, rA), collision.normal);
+                }
+                if(RB_B != null)
+                {
+                    momentumB = RB_B.GetInvWorldInertiaTensor().MultiplyPoint3x4(Vector3.Cross(rB, collision.normal));
+                    weightRotB = Vector3.Dot(Vector3.Cross(momentumB, rB), collision.normal);
+                }
 
+                // Not sure if we should do an average ?
                 float invMass_A = RB_A != null ? 1f / RB_A.Mass : 0f;
                 float invMass_B = RB_B != null ? 1f / RB_B.Mass : 0f;
 
                 // Impulse
-                float J = (-(1 + restitution) * relativeVelocity) / (invMass_A + invMass_B);
-                if(RB_A != null)
+                if (RB_A != null)
                 {
-                    RB_A.Velocity += J * invMass_A * collision.normal;
+                    float JA = (-(1 + collision.objectA.PM.bouciness) * relativeVelocity) / (invMass_A + invMass_B + weightRotA + weightRotB);
+                    RB_A.Velocity += JA * invMass_A * collision.normal;
+                    RB_A.AngVelocity += JA * momentumA;
                 }
                 if (RB_B != null)
                 {
-                    RB_B.Velocity -= J * invMass_B * collision.normal;
+                    float JB = (-(1 + collision.objectB.PM.bouciness) * relativeVelocity) / (invMass_A + invMass_B + weightRotA + weightRotB);
+                    RB_B.Velocity -= JB * invMass_B * collision.normal;
+                    RB_B.AngVelocity -= JB * momentumB;
                 }
 
 
@@ -117,7 +134,6 @@ namespace CustomPhysic
                 }
             }
         }
-
 
         private void OnDrawGizmos()
         {

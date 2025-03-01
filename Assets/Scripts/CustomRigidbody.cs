@@ -41,11 +41,15 @@ namespace CustomPhysic
         private Vector3 acceleration;
         private Vector3 impulse;
         private Vector3 velocity;
+        private Vector3 angVelocity;
 
         List<Vector3> Accelerations = new List<Vector3>();
         List<Vector3> Impulses = new List<Vector3>();
 
         public Vector3 Velocity {  get { return velocity; } set {  velocity = value; } }
+        public Vector3 AngVelocity { get { return angVelocity; } set { angVelocity = value; } }
+        Matrix4x4 invLocalTensor;
+
         public float Mass { get { return mass; } set { mass = value; } }
 
         public void AddForce(Vector3 force, ForceType type)
@@ -105,6 +109,18 @@ namespace CustomPhysic
             CalcVelocity();
 
             transform.position = transform.position + velocity * Time.fixedDeltaTime;
+            transform.rotation = Quaternion.Euler(angVelocity * Time.fixedDeltaTime) * transform.rotation;
+        }
+
+        public void SetLocalInertiaTensor(Matrix4x4 localTensor)
+        {
+            invLocalTensor = localTensor;
+        }
+
+        public Matrix4x4 GetInvWorldInertiaTensor()
+        {
+            Matrix4x4 rotMatrix = Matrix4x4.Rotate(transform.rotation);
+            return rotMatrix * invLocalTensor * rotMatrix.inverse;
         }
 
         private void OnDrawGizmos()
