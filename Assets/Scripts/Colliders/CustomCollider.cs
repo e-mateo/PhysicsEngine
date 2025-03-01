@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEngine;
@@ -12,7 +14,8 @@ namespace CustomPhysic
     public class CollisionInfo
     {
         public CustomCollider objectA, objectB;
-        public Vector3 contact;
+        public Vector3 contactA;
+        public Vector3 contactB;
         public Vector3 normal;
         public float penetration;
     }
@@ -27,7 +30,7 @@ namespace CustomPhysic
         protected Vector3 lastPosition;
 
         static protected float minDistanceToMove = 0.05f;
-        static protected int maxEPAIteration = 5;
+        static protected int maxEPAIteration = 20;
 
         protected bool moved;
         public bool Moved { get { return moved; } }
@@ -110,7 +113,10 @@ namespace CustomPhysic
         }
 
         public static float precision = 0.001f;
-        public static int maxIteration = 5;
+        public static int maxIteration = 10;
+
+        public static List<Vector3> supportA = new List<Vector3>();
+        public static List<Vector3> supportB = new List<Vector3>();
 
         abstract protected Vector3 Support(Vector3 dir);
 
@@ -147,22 +153,36 @@ namespace CustomPhysic
         public static Vector3[] GenerateTetrahedron(CustomCollider A, CustomCollider B)
         {
             Vector3[] tetrahedron = new Vector3[4];
+            Vector3 SupA;
+            Vector3 SupB;
 
             // First point creation
             Vector3 dir = Vector3.forward;
-            Vector3 support = A.Support(dir) - B.Support(-dir);
+            SupA = A.Support(dir);
+            SupB = B.Support(-dir);
+            supportA.Add(SupA);
+            supportB.Add(SupB);
+            Vector3 support = SupA - SupB;
             tetrahedron[0] = support;
 
             // Second point creation
             dir = -support.normalized;
-            support = A.Support(dir) - B.Support(-dir);
+            SupA = A.Support(dir);
+            SupB = B.Support(-dir);
+            supportA.Add(SupA);
+            supportB.Add(SupB);
+            support = SupA - SupB;
             tetrahedron[1] = support;
 
             // Third point creation
             Vector3 line = tetrahedron[1] - tetrahedron[0];
             Vector3 projection = Vector3.ProjectOnPlane(Vector3.zero, line);
             dir = -projection.normalized;
-            support = A.Support(dir) - B.Support(-dir);
+            SupA = A.Support(dir);
+            SupB = B.Support(-dir);
+            supportA.Add(SupA);
+            supportB.Add(SupB);
+            support = SupA - SupB;
             tetrahedron[2] = support;
 
             // Last point creation
@@ -170,7 +190,11 @@ namespace CustomPhysic
             Vector3 toZero = Vector3.zero - tetrahedron[2];
             if (Vector3.Dot(dir, toZero) < 0)
                 dir = -dir;
-            support = A.Support(dir) - B.Support(-dir);
+            SupA = A.Support(dir);
+            SupB = B.Support(-dir);
+            supportA.Add(SupA);
+            supportB.Add(SupB);
+            support = SupA - SupB;
             tetrahedron[3] = support;
 
             return tetrahedron;
@@ -179,6 +203,9 @@ namespace CustomPhysic
         // GJK Iteration
         public static CollisionInfo CheckCollision(CustomCollider A, CustomCollider B)
         {
+            supportA.Clear();
+            supportB.Clear();
+
             Vector3[] tetrahedron = GenerateTetrahedron(A, B);
             CollisionInfo collisionInfo = new CollisionInfo();
             collisionInfo.objectA = A;
@@ -193,10 +220,10 @@ namespace CustomPhysic
             if (PointInTetrahedron(tetrahedron, Vector3.zero))
             {
                 CustomPhysicEngine.collidingTethraedron = tetrahedron;
-                collisionInfo.contact = A.Support(B.gameObject.transform.position - A.gameObject.transform.position);
-
-                Vector3 contactOther = B.Support(A.gameObject.transform.position - B.gameObject.transform.position);
-                collisionInfo.penetration = Vector3.Distance(collisionInfo.contact, contactOther);
+                if (A.RB != null || B.RB != null)
+                {
+                    EPA(A, B, tetrahedron, ref collisionInfo);
+                }
                 return collisionInfo;
             }
 
@@ -216,9 +243,13 @@ namespace CustomPhysic
                 if (Vector3.Dot(dir, toZero) < 0)
                     dir = -dir;
 
-                Vector3 supportA = A.Support(dir);
-                Vector3 supportB = B.Support(-dir);
-                Vector3 support = supportA - supportB;
+                Vector3 supA = A.Support(dir);
+                Vector3 supB = B.Support(-dir);
+                supportA.Add(supA);
+                supportB.Add(supB);
+                supportA.RemoveAt(0);
+                supportB.RemoveAt(0);
+                Vector3 support = supA - supB;
                 tetrahedron[3] = support;
 
                 if (tetrahedron[3] == tetrahedron[2])
@@ -230,7 +261,6 @@ namespace CustomPhysic
                 if (PointInTetrahedron(tetrahedron, Vector3.zero))
                 {
                     CustomPhysicEngine.collidingTethraedron = tetrahedron;
-                    collisionInfo.contact = A.Support(B.gameObject.transform.position - A.gameObject.transform.position);
 
                     if(A.RB != null || B.RB != null)
                     {
@@ -265,16 +295,19 @@ namespace CustomPhysic
             float minDistance = float.MaxValue;
             int iteration = 0;
 
-            while(minDistance == float.MaxValue && iteration < maxEPAIteration)
+            while(minDistance == float.MaxValue && iteration < maxEPAIteration && faces.Count > 0)
             {
                 iteration++;
                 minNormal = new Vector3(normals[minFace].x, normals[minFace].y, normals[minFace].z);
                 minDistance = normals[minFace].w;
 
+                Vector3 supA = A.Support(minNormal);
+                Vector3 supB = B.Support(-minNormal);
+
                 Vector3 support = A.Support(minNormal) - B.Support(-minNormal);
                 float sDistance = Vector3.Dot(minNormal, support);
 
-                if (Mathf.Abs(sDistance - minDistance) > 0.1f)
+                if (Mathf.Abs(sDistance - minDistance) > 0.001f)
                 {
                     minDistance = float.MaxValue;
 
@@ -306,6 +339,8 @@ namespace CustomPhysic
                         newFaces.Add(polytope.Count);
                     }
                     polytope.Add(support);
+                    supportA.Add(supA);
+                    supportB.Add(supB);
                     List<Vector4> newNormals = new List<Vector4>();
                     int newMinFace;
                     (newNormals, newMinFace) = GetFaceNormals(polytope, newFaces);
@@ -331,15 +366,93 @@ namespace CustomPhysic
                 }
             }
 
-            collisionInfo.normal = -minNormal.normalized;
-            collisionInfo.penetration = minDistance + 0.001f;
-
-            if (iteration >= maxEPAIteration)
+            if (iteration >= maxEPAIteration || faces.Count == 0)
             {
                 Debug.Log("MaxIteration");
                 collisionInfo.normal = Vector3.zero;
                 collisionInfo.penetration = 0;
+                collisionInfo.contactA = A.transform.position;
+                collisionInfo.contactB = B.transform.position;
+                return;
             }
+
+            (collisionInfo.contactA, collisionInfo.contactB) = GetContactPoints(polytope, faces, minFace, minNormal);
+            collisionInfo.normal = -minNormal.normalized;
+            collisionInfo.penetration = minDistance + 0.001f;
+        }
+
+        public static bool IsPointInsideTriangle(Vector3 P, Vector3 A, Vector3 B, Vector3 C)
+        {
+            float Area = TriangleArea(A, B, C);
+            float subArea1 = TriangleArea(A, B, P);
+            float subArea2 = TriangleArea(A, C, P);
+            float subArea3 = TriangleArea(B, C, P);
+            float total = subArea1 + subArea2 + subArea3;
+
+            if (total == Area)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public static float TriangleArea(Vector3 A, Vector3 B, Vector3 C)
+        {
+            Vector3 AB = B - A;
+            Vector3 AC = C - A;
+            return 0.5f * Mathf.Sqrt(Mathf.Pow((AB.y * AC.z) - (AB.z * AC.y), 2f) + Mathf.Pow((AB.z * AC.x) - (AB.x * AC.z), 2f) + Mathf.Pow((AB.x * AC.y) - (AB.y * AC.x), 2f));
+        }
+
+        public static (Vector3, Vector3) GetContactPoints(List<Vector3> polytope, List<int> faces, int minFace, Vector3 minNormal)
+        {
+            int index0 = faces[minFace * 3];
+            int index1 = faces[minFace * 3 + 1];
+            int index2 = faces[minFace * 3 + 2];
+
+            Vector3 tA = polytope[index0];
+            Vector3 tB = polytope[index1];
+            Vector3 tC = polytope[index2];
+            Plane plane = new Plane(minNormal.normalized, tA);
+            Vector3 Cp = plane.ClosestPointOnPlane(Vector3.zero);
+            if (!IsPointInsideTriangle(Cp, tA, tB, tC))
+            {
+                List<Vector3> projectedPoint = new List<Vector3>();
+                projectedPoint.Add(Vector3.Project(Cp, tB - tA));
+                projectedPoint.Add(Vector3.Project(Cp, tC - tA));
+                projectedPoint.Add(Vector3.Project(Cp, tB - tC));
+
+                Vector3 nearest = projectedPoint[0];
+                float minDist = float.MaxValue;
+
+                for (int i = 0; i < projectedPoint.Count; i++)
+                {
+                    float dist = Vector3.Distance(Cp, projectedPoint[i]);
+                    if(dist < minDist)
+                    {
+                        minDist = dist;
+                        nearest = projectedPoint[i];
+                    }
+                }
+
+                Cp = nearest;
+            }
+
+            float x = 0f, y = 0f, z = 0f;
+            Barycentric(Cp, tA, tB, tC, ref x, ref y, ref z);
+            Vector3 Ap = x * supportA[index0] + y * supportA[index1] + z * supportA[index2];
+            Vector3 Bp = x * supportB[index0] + y * supportB[index1] + z * supportB[index2];
+            return (Ap, Bp);
+        }
+
+
+        public static void Barycentric(Vector3 p, Vector3 a, Vector3 b, Vector3 c, ref float u, ref float v, ref float w)
+        {
+            u = TriangleArea(b, c, p) / TriangleArea(a, b, c);
+            v = TriangleArea(c, a, p) / TriangleArea(a, b, c);
+            w = TriangleArea(a, b, p) / TriangleArea(a, b, c);
         }
 
 

@@ -11,7 +11,10 @@ public class CustomBoxCollider : CustomCollider
         if (customRigidbody != null)
         {
             float M = customRigidbody.Mass;
-            Vector3 E = extend;
+            Vector3 E = extend * 2.0f;
+            E.x *= transform.lossyScale.x;
+            E.y *= transform.lossyScale.y;
+            E.z *= transform.lossyScale.z;
 
             InvInertiaTensor = new Matrix4x4(
             new Vector4((1f / 12f) * M * ((E.y * E.y) + (E.z * E.z)), 0f, 0f, 0f),
@@ -55,8 +58,7 @@ public class CustomBoxCollider : CustomCollider
     {
         Vector3 result = new Vector3();
         float MaxProj = float.MinValue;
-
-        foreach(Vector3 corner in GetCubeCorner())
+        foreach (Vector3 corner in GetCubeCorner())
         {
             float proj = Vector3.Dot(corner, dir.normalized);
 

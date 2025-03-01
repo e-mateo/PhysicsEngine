@@ -8,9 +8,12 @@ namespace CustomPhysic
     {
         private List<CustomCollider> colliders = new List<CustomCollider>();
         [SerializeField] private DAABBTree dynamicAABBTree;
+        [SerializeField] bool applyRotationResponse;
+
         List<CollisionInfo> collisions = new List<CollisionInfo>();
 
         public static Vector3[] collidingTethraedron;
+
 
         // Singleton access
         static CustomPhysicEngine instance = null;
@@ -35,7 +38,14 @@ namespace CustomPhysic
         private void FixedUpdate()
         {
             collisions = CollisionDetection();
-            CollisionResponse(collisions);
+            if(applyRotationResponse)
+            {
+                CollisionResponseWithRotation(collisions);
+            }
+            else
+            {
+                CollisionResponseWithoutRotation(collisions);
+            }
         }
 
         private List<CollisionInfo> CollisionDetection()
@@ -57,8 +67,8 @@ namespace CustomPhysic
                 if (collisionInfo != null)
                 {
                     Debug.Log("Colision detected (" + collisionPair.colliderA.gameObject.name + ", " + collisionPair.colliderB.gameObject.name 
-                                    + ") \n Penetration : " + collisionInfo.penetration
-                                    + "\n Normal: " + collisionInfo.normal);
+                                    + ") Penetration : " + collisionInfo.penetration
+                                    + " Normal: " + collisionInfo.normal);
                                 
                     collisions.Add(collisionInfo);
                 }
@@ -67,7 +77,7 @@ namespace CustomPhysic
             return collisions;
         }
 
-        private void CollisionResponse(List<CollisionInfo> collisions)
+        private void CollisionResponseWithRotation(List<CollisionInfo> collisions)
         {
             foreach(CollisionInfo collision in collisions)
             {
@@ -78,8 +88,11 @@ namespace CustomPhysic
                     continue;
                 }
 
-                Vector3 rA = collision.contact - collision.objectA.transform.position;
-                Vector3 rB = collision.contact - collision.objectB.transform.position;
+                // Not sure if we should do an average ?
+                float invMass_A = RB_A != null ? 1f / RB_A.Mass : 0f;
+                float invMass_B = RB_B != null ? 1f / RB_B.Mass : 0f;
+                Vector3 rA = collision.contactA - collision.objectA.transform.position;
+                Vector3 rB = collision.contactB - collision.objectB.transform.position;
                 Vector3 vAi = RB_A != null ? RB_A.Velocity + Vector3.Cross(RB_A.AngVelocity, rA) : Vector3.zero;
                 Vector3 vBi = RB_B != null ? RB_B.Velocity + Vector3.Cross(RB_B.AngVelocity, rB) : Vector3.zero;
 
@@ -89,6 +102,7 @@ namespace CustomPhysic
                     continue;
                 }
 
+                //Rotation
                 float weightRotA = 0f, weightRotB = 0f;
                 Vector3 momentumA = Vector3.zero, momentumB = Vector3.zero;
                 if (RB_A != null)
@@ -102,14 +116,23 @@ namespace CustomPhysic
                     weightRotB = Vector3.Dot(Vector3.Cross(momentumB, rB), collision.normal);
                 }
 
-                // Not sure if we should do an average ?
-                float invMass_A = RB_A != null ? 1f / RB_A.Mass : 0f;
-                float invMass_B = RB_B != null ? 1f / RB_B.Mass : 0f;
+                //Position Correction
+                float damping = 0.2f;
+                float correction = (collision.penetration * damping) / (invMass_A + invMass_B);
+                if (RB_A != null)
+                {
+                    RB_A.transform.position += correction * invMass_A * collision.normal;
+                }
+                if (RB_B != null)
+                {
+                    RB_B.transform.position -= correction * invMass_B * collision.normal;
+                }
 
-                // Impulse
+                // Impulse + apply rotation
                 if (RB_A != null)
                 {
                     float JA = (-(1 + collision.objectA.PM.bouciness) * relativeVelocity) / (invMass_A + invMass_B + weightRotA + weightRotB);
+
                     RB_A.Velocity += JA * invMass_A * collision.normal;
                     RB_A.AngVelocity += JA * momentumA;
                 }
@@ -119,7 +142,35 @@ namespace CustomPhysic
                     RB_B.Velocity -= JB * invMass_B * collision.normal;
                     RB_B.AngVelocity -= JB * momentumB;
                 }
+            }
+        }
 
+
+        private void CollisionResponseWithoutRotation(List<CollisionInfo> collisions)
+        {
+            foreach (CollisionInfo collision in collisions)
+            {
+                CustomPhysic.CustomRigidbody RB_A = collision.objectA.RB;
+                CustomPhysic.CustomRigidbody RB_B = collision.objectB.RB;
+                if (collision.objectA.bIsTrigger || collision.objectB.bIsTrigger)
+                {
+                    continue;
+                }
+
+                // Not sure if we should do an average ?
+                float invMass_A = RB_A != null ? 1f / RB_A.Mass : 0f;
+                float invMass_B = RB_B != null ? 1f / RB_B.Mass : 0f;
+
+
+                Vector3 rB = collision.contactB - collision.objectB.transform.position;
+                Vector3 vAi = RB_A != null ? RB_A.Velocity : Vector3.zero;
+                Vector3 vBi = RB_B != null ? RB_B.Velocity : Vector3.zero;
+
+                float relativeVelocity = Vector3.Dot(vAi - vBi, collision.normal);
+                if (relativeVelocity > 0)
+                {
+                    continue;
+                }
 
                 //Position Correction
                 float damping = 0.2f;
@@ -131,6 +182,19 @@ namespace CustomPhysic
                 if (RB_B != null)
                 {
                     RB_B.transform.position -= correction * invMass_B * collision.normal;
+                }
+
+                // Impulse
+                if (RB_A != null)
+                {
+                    float JA = (-(1 + collision.objectA.PM.bouciness) * relativeVelocity) / (invMass_A + invMass_B);
+
+                    RB_A.Velocity += JA * invMass_A * collision.normal;
+                }
+                if (RB_B != null)
+                {
+                    float JB = (-(1 + collision.objectB.PM.bouciness) * relativeVelocity) / (invMass_A + invMass_B);
+                    RB_B.Velocity -= JB * invMass_B * collision.normal;
                 }
             }
         }
@@ -154,7 +218,8 @@ namespace CustomPhysic
             Gizmos.color = Color.green;
             foreach (CollisionInfo collision in collisions)
             {
-                Gizmos.DrawSphere(collision.contact, 0.1f);
+                Gizmos.DrawSphere(collision.contactA, 0.1f);
+                Gizmos.DrawSphere(collision.contactB, 0.1f);
             }
         }
 

@@ -35,7 +35,9 @@ namespace CustomPhysic
         [SerializeField] float mass;
         [SerializeField] bool useGravity;
         [SerializeField] bool isKinematic;
-        
+        [SerializeField] float linearDrag;
+        [SerializeField] float angularDrag;
+
         [SerializeField] RigidbodyDebug debug;
 
         private Vector3 acceleration;
@@ -108,8 +110,11 @@ namespace CustomPhysic
 
             CalcVelocity();
 
-            transform.position = transform.position + velocity * Time.fixedDeltaTime;
-            transform.rotation = Quaternion.Euler(angVelocity * Time.fixedDeltaTime) * transform.rotation;
+            velocity *= 1.0f / (1.0f + (Time.fixedDeltaTime * linearDrag));
+            angVelocity *= 1.0f / (1.0f + (Time.fixedDeltaTime * angularDrag));
+
+            transform.position += velocity * Time.fixedDeltaTime;
+            transform.rotation *= Quaternion.Euler(angVelocity * Mathf.Rad2Deg * Time.fixedDeltaTime);
         }
 
         public void SetLocalInertiaTensor(Matrix4x4 localTensor)
