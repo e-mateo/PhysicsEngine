@@ -27,7 +27,7 @@ namespace CustomPhysic
         protected Vector3 lastPosition;
 
         static protected float minDistanceToMove = 0.05f;
-        static protected int maxEPAIteration = 10;
+        static protected int maxEPAIteration = 5;
 
         protected bool moved;
         public bool Moved { get { return moved; } }
