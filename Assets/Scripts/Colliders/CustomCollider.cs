@@ -36,6 +36,8 @@ namespace CustomPhysic
         public CustomRigidbody RB { get { return customRigidbody; } }
         public CustomPhysicMaterial PM { get { return physicsMaterial; } }
 
+        [SerializeField] public bool bIsTrigger;
+
         [SerializeField] protected bool bShowAABBBox;
 
         private void FixedUpdate()
@@ -44,7 +46,7 @@ namespace CustomPhysic
                 moved = true;
             else 
                 moved = false;
-        
+
 
             lastPosition.Set(transform.position.x, transform.position.y, transform.position.z);
         }

@@ -70,9 +70,9 @@ namespace CustomPhysic
             {
                 CustomPhysic.CustomRigidbody RB_A = collision.objectA.RB;
                 CustomPhysic.CustomRigidbody RB_B = collision.objectB.RB;
-                if(RB_A == null && RB_B == null)
+                if(collision.objectA.bIsTrigger || collision.objectB.bIsTrigger)
                 {
-                    return;
+                    continue;
                 }
                 Vector3 vel_A = RB_A != null ? RB_A.Velocity : Vector3.zero;
                 Vector3 vel_B = RB_B != null ? RB_B.Velocity : Vector3.zero;

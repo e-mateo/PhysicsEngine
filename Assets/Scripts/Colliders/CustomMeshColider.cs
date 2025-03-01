@@ -9,11 +9,6 @@ namespace CustomPhysic
     {
         Vector3 SupportSelected;
 
-        public override Vector3 GetAABBExtends()
-        {
-            return worldBounds.extents;
-        }
-
         protected override Vector3 Support(Vector3 dir)
         {
             Vector3 result = new Vector3();
@@ -33,18 +28,18 @@ namespace CustomPhysic
             return result;
         }
 
-        private void OnDrawGizmosSelected()
-        {
-            Gizmos.color = new UnityEngine.Color(193f / 255f, 63f / 255f, 240f / 255f);
+        //private void OnDrawGizmosSelected()
+        //{
+        //    Gizmos.color = new UnityEngine.Color(193f / 255f, 63f / 255f, 240f / 255f);
 
-            Gizmos.DrawWireMesh(mesh, transform.position, transform.rotation);
+        //    Gizmos.DrawWireMesh(mesh, transform.position, transform.rotation);
 
-            if (bShowAABBBox)
-            {
-                Gizmos.color = UnityEngine.Color.red;
-                Gizmos.DrawWireCube(transform.position, GetAABBExtends() * 2f);
-            }
-        }
+        //    if (bShowAABBBox)
+        //    {
+        //        Gizmos.color = UnityEngine.Color.red;
+        //        Gizmos.DrawWireCube(transform.position, GetAABBExtends() * 2f);
+        //    }
+        //}
     }
 
 }
