@@ -88,7 +88,6 @@ namespace CustomPhysic
                     continue;
                 }
 
-                // Not sure if we should do an average ?
                 float invMass_A = RB_A != null ? 1f / RB_A.Mass : 0f;
                 float invMass_B = RB_B != null ? 1f / RB_B.Mass : 0f;
                 Vector3 rA = collision.contactA - collision.objectA.transform.position;
@@ -117,7 +116,7 @@ namespace CustomPhysic
                 }
 
                 //Position Correction
-                float damping = 0.2f;
+                float damping = 0.25f;
                 float correction = (collision.penetration * damping) / (invMass_A + invMass_B);
                 if (RB_A != null)
                 {
@@ -128,19 +127,18 @@ namespace CustomPhysic
                     RB_B.transform.position -= correction * invMass_B * collision.normal;
                 }
 
-                // Impulse + apply rotation
+                // Impulse + Torques
                 if (RB_A != null)
                 {
                     float JA = (-(1 + collision.objectA.PM.bouciness) * relativeVelocity) / (invMass_A + invMass_B + weightRotA + weightRotB);
-
-                    RB_A.Velocity += JA * invMass_A * collision.normal;
-                    RB_A.AngVelocity += JA * momentumA;
+                    RB_A.AddForce(JA * invMass_A * collision.normal, CustomRigidbody.ForceType.FT_VelocityChange);
+                    RB_A.AddTorques(JA * momentumA, CustomRigidbody.ForceType.FT_VelocityChange);
                 }
                 if (RB_B != null)
                 {
                     float JB = (-(1 + collision.objectB.PM.bouciness) * relativeVelocity) / (invMass_A + invMass_B + weightRotA + weightRotB);
-                    RB_B.Velocity -= JB * invMass_B * collision.normal;
-                    RB_B.AngVelocity -= JB * momentumB;
+                    RB_B.AddForce(-JB * invMass_B * collision.normal, CustomRigidbody.ForceType.FT_VelocityChange);
+                    RB_B.AddTorques(-JB * momentumB, CustomRigidbody.ForceType.FT_VelocityChange);
                 }
             }
         }
@@ -215,10 +213,11 @@ namespace CustomPhysic
             Gizmos.DrawLine(collidingTethraedron[1], collidingTethraedron[3]);
             Gizmos.DrawLine(collidingTethraedron[2], collidingTethraedron[3]);
 
-            Gizmos.color = Color.green;
             foreach (CollisionInfo collision in collisions)
             {
+                Gizmos.color = Color.green;
                 Gizmos.DrawSphere(collision.contactA, 0.1f);
+                Gizmos.color = Color.red;
                 Gizmos.DrawSphere(collision.contactB, 0.1f);
             }
         }

@@ -30,7 +30,7 @@ namespace CustomPhysic
         protected Vector3 lastPosition;
 
         static protected float minDistanceToMove = 0.05f;
-        static protected int maxEPAIteration = 20;
+        static protected int maxEPAIteration = 30;
 
         protected bool moved;
         public bool Moved { get { return moved; } }
@@ -214,7 +214,15 @@ namespace CustomPhysic
             foreach (Vector3 point in tetrahedron)
             {
                 if (IsOrigin(point))
+                {
+                    CustomPhysicEngine.collidingTethraedron = tetrahedron;
+                    if (A.RB != null || B.RB != null)
+                    {
+                        EPA(A, B, tetrahedron, ref collisionInfo);
+                    }
+
                     return collisionInfo;
+                }
             }
 
             if (PointInTetrahedron(tetrahedron, Vector3.zero))
@@ -266,8 +274,6 @@ namespace CustomPhysic
                     {
                         EPA(A, B, tetrahedron, ref collisionInfo);
                     }
-                    //Vector3 contactOther = B.Support(A.gameObject.transform.position - B.gameObject.transform.position);
-                    //collisionInfo.penetration = Vector3.Distance(collisionInfo.contact, contactOther);
 
                     return collisionInfo;
                 }

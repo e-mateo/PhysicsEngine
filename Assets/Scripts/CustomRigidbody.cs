@@ -28,8 +28,10 @@ namespace CustomPhysic
     {
         public enum ForceType
         {
+            FT_Force,
             FT_Acceleration,
-            FT_Impulse
+            FT_Impulse,
+            FT_VelocityChange,
         }
 
         [SerializeField] float mass;
@@ -41,16 +43,20 @@ namespace CustomPhysic
         [SerializeField] RigidbodyDebug debug;
 
         private Vector3 acceleration;
-        private Vector3 impulse;
+        private Vector3 angAcceleration;
         private Vector3 velocity;
         private Vector3 angVelocity;
 
-        List<Vector3> Accelerations = new List<Vector3>();
-        List<Vector3> Impulses = new List<Vector3>();
+        private Vector3 Forces;
+        private Vector3 Impulses;
+
+        private Vector3 Torques;
+        private Vector3 TorquesImpulses;
+
+        Matrix4x4 invLocalTensor;
 
         public Vector3 Velocity {  get { return velocity; } set {  velocity = value; } }
         public Vector3 AngVelocity { get { return angVelocity; } set { angVelocity = value; } }
-        Matrix4x4 invLocalTensor;
 
         public float Mass { get { return mass; } set { mass = value; } }
 
@@ -58,44 +64,43 @@ namespace CustomPhysic
         {
             switch (type)
             {
+                case ForceType.FT_Force:
+                    Forces += (force / mass); break;
+
                 case ForceType.FT_Acceleration:
-                    Accelerations.Add(force); break;
+                    Forces += (force); break;
 
                 case ForceType.FT_Impulse:
-                    Impulses.Add(force); break;
+                    Impulses += (force / mass); break;
+
+                case ForceType.FT_VelocityChange:
+                    Impulses += (force); break;
 
                 default:
                     break;
             }
         }
 
-        private void InitVariable()
+        //Torques in radians
+        public void AddTorques(Vector3 torque, ForceType type)
         {
-            velocity = new Vector3(0, 0, 0);
-        }
-
-        private void CalcVelocity()
-        {
-            acceleration.Set(0, 0, 0);
-            impulse.Set(0, 0, 0);
-
-            if (useGravity)
-                AddForce(GlobalParameters.instance.Gravity, ForceType.FT_Acceleration);
-
-            foreach (Vector3 vec in Accelerations)
+            switch (type)
             {
-                acceleration += vec;
-                velocity += vec * Time.fixedDeltaTime;
-            }
+                case ForceType.FT_Force:
+                    Torques += (torque / mass); break;
 
-            foreach (Vector3 vec in Impulses)
-            {
-                impulse += vec;
-                velocity += vec;
-            }
+                case ForceType.FT_Acceleration:
+                    Torques += (torque); break;
 
-            Accelerations.Clear();
-            Impulses.Clear();
+                case ForceType.FT_Impulse:
+                    TorquesImpulses += (torque / mass); break;
+
+                case ForceType.FT_VelocityChange:
+                    TorquesImpulses += (torque); break;
+
+                default:
+                    break;
+            }
         }
 
         #region Monobehaviour
@@ -104,17 +109,43 @@ namespace CustomPhysic
             InitVariable();
         }
 
+        private void InitVariable()
+        {
+            velocity = new Vector3(0, 0, 0);
+            angVelocity = new Vector3(0, 0, 0);
+            acceleration = new Vector3(0, 0, 0);
+            Forces = new Vector3(0, 0, 0);
+            Impulses = new Vector3(0, 0, 0);
+        }
+
         private void FixedUpdate()
         {
             if(isKinematic) return;
 
-            CalcVelocity();
+            if (useGravity)
+                AddForce(GlobalParameters.instance.Gravity, ForceType.FT_Acceleration);
 
+            Integrate();
+        }
+
+        private void Integrate()
+        {
+            acceleration = Forces;
+            angAcceleration = Torques;
+
+            velocity = velocity + (acceleration * Time.fixedDeltaTime) + Impulses;
+            angVelocity = angVelocity + (angAcceleration * Time.fixedDeltaTime) + TorquesImpulses;
+
+            //Euler Semi implicite
+            transform.position = transform.position + velocity * Time.fixedDeltaTime;
+            transform.rotation = transform.rotation * Quaternion.Euler(angVelocity * Mathf.Rad2Deg * Time.fixedDeltaTime);
+
+            //Drag
             velocity *= 1.0f / (1.0f + (Time.fixedDeltaTime * linearDrag));
             angVelocity *= 1.0f / (1.0f + (Time.fixedDeltaTime * angularDrag));
 
-            transform.position += velocity * Time.fixedDeltaTime;
-            transform.rotation *= Quaternion.Euler(angVelocity * Mathf.Rad2Deg * Time.fixedDeltaTime);
+            Forces = Vector3.zero; Impulses = Vector3.zero;
+            Torques = Vector3.zero; TorquesImpulses = Vector3.zero;
         }
 
         public void SetLocalInertiaTensor(Matrix4x4 localTensor)
@@ -139,7 +170,7 @@ namespace CustomPhysic
             if (debug.debugImpulse)
             {
                 Gizmos.color = debug.impColor;
-                Gizmos.DrawLine(transform.position, debug.normalizeImp ? transform.position + impulse.normalized * debug.impLenght : transform.position + impulse * debug.impLenght);
+                Gizmos.DrawLine(transform.position, debug.normalizeImp ? transform.position + Impulses.normalized * debug.impLenght : transform.position + Impulses * debug.impLenght);
             }
 
             if (debug.debugVelocity)
