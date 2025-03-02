@@ -13,7 +13,7 @@ public class BallSpawner : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            GameObject ball = Instantiate(ballPrefab);
+            GameObject ball = Instantiate(ballPrefab,transform.position, transform.rotation);
             ball.GetComponent<CustomRigidbody>().AddForce(transform.up * launchSpeed, CustomRigidbody.ForceType.FT_Impulse);
         }
     }

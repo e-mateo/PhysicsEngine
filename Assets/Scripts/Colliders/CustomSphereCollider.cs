@@ -5,6 +5,8 @@ public class CustomSphereCollider : CustomCollider
 {
     [SerializeField] float radius = 1.0f;
 
+    public float Radius { get { return radius; } }
+
     protected override void SetInvInteriaTensor()
     {
         if (customRigidbody != null)

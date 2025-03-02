@@ -116,7 +116,7 @@ namespace CustomPhysic
                 }
 
                 //Position Correction
-                float damping = 0.25f;
+                float damping = 0.3f;
                 float correction = (collision.penetration * damping) / (invMass_A + invMass_B);
                 if (RB_A != null)
                 {
@@ -128,15 +128,16 @@ namespace CustomPhysic
                 }
 
                 // Impulse + Torques
+                float bounciness = (collision.objectA.PM.bouciness + collision.objectB.PM.bouciness) * 0.5f;
                 if (RB_A != null)
                 {
-                    float JA = (-(1 + collision.objectA.PM.bouciness) * relativeVelocity) / (invMass_A + invMass_B + weightRotA + weightRotB);
+                    float JA = (-(1 + bounciness) * relativeVelocity) / (invMass_A + invMass_B + weightRotA + weightRotB);
                     RB_A.AddForce(JA * invMass_A * collision.normal, CustomRigidbody.ForceType.FT_VelocityChange);
                     RB_A.AddTorques(JA * momentumA, CustomRigidbody.ForceType.FT_VelocityChange);
                 }
                 if (RB_B != null)
                 {
-                    float JB = (-(1 + collision.objectB.PM.bouciness) * relativeVelocity) / (invMass_A + invMass_B + weightRotA + weightRotB);
+                    float JB = (-(1 + bounciness) * relativeVelocity) / (invMass_A + invMass_B + weightRotA + weightRotB);
                     RB_B.AddForce(-JB * invMass_B * collision.normal, CustomRigidbody.ForceType.FT_VelocityChange);
                     RB_B.AddTorques(-JB * momentumB, CustomRigidbody.ForceType.FT_VelocityChange);
                 }
@@ -183,15 +184,15 @@ namespace CustomPhysic
                 }
 
                 // Impulse
+                float bounciness = (collision.objectA.PM.bouciness + collision.objectB.PM.bouciness) * 0.5f;
                 if (RB_A != null)
                 {
-                    float JA = (-(1 + collision.objectA.PM.bouciness) * relativeVelocity) / (invMass_A + invMass_B);
-
+                    float JA = (-(1 + bounciness) * relativeVelocity) / (invMass_A + invMass_B);
                     RB_A.Velocity += JA * invMass_A * collision.normal;
                 }
                 if (RB_B != null)
                 {
-                    float JB = (-(1 + collision.objectB.PM.bouciness) * relativeVelocity) / (invMass_A + invMass_B);
+                    float JB = (-(1 + bounciness) * relativeVelocity) / (invMass_A + invMass_B);
                     RB_B.Velocity -= JB * invMass_B * collision.normal;
                 }
             }

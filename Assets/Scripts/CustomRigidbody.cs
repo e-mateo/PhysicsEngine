@@ -34,11 +34,11 @@ namespace CustomPhysic
             FT_VelocityChange,
         }
 
-        [SerializeField] float mass;
-        [SerializeField] bool useGravity;
+        [SerializeField] float mass = 1.0f;
+        [SerializeField] bool useGravity = true;
         [SerializeField] bool isKinematic;
-        [SerializeField] float linearDrag;
-        [SerializeField] float angularDrag;
+        [SerializeField] float linearDrag = 0f;
+        [SerializeField] float angularDrag = 0.05f;
 
         [SerializeField] RigidbodyDebug debug;
 
@@ -114,8 +114,6 @@ namespace CustomPhysic
             velocity = new Vector3(0, 0, 0);
             angVelocity = new Vector3(0, 0, 0);
             acceleration = new Vector3(0, 0, 0);
-            Forces = new Vector3(0, 0, 0);
-            Impulses = new Vector3(0, 0, 0);
         }
 
         private void FixedUpdate()

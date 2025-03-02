@@ -203,6 +203,11 @@ namespace CustomPhysic
         // GJK Iteration
         public static CollisionInfo CheckCollision(CustomCollider A, CustomCollider B)
         {
+            if ((A is CustomSphereCollider) && (B is CustomSphereCollider))
+            {
+               return  CheckCollisionSphere((CustomSphereCollider)A, (CustomSphereCollider)B);
+            }
+
             supportA.Clear();
             supportB.Clear();
 
@@ -215,23 +220,14 @@ namespace CustomPhysic
             {
                 if (IsOrigin(point))
                 {
-                    CustomPhysicEngine.collidingTethraedron = tetrahedron;
-                    if (A.RB != null || B.RB != null)
-                    {
-                        EPA(A, B, tetrahedron, ref collisionInfo);
-                    }
-
+                    FillCollisionInfo(A, B, tetrahedron, ref collisionInfo);
                     return collisionInfo;
                 }
             }
 
             if (PointInTetrahedron(tetrahedron, Vector3.zero))
             {
-                CustomPhysicEngine.collidingTethraedron = tetrahedron;
-                if (A.RB != null || B.RB != null)
-                {
-                    EPA(A, B, tetrahedron, ref collisionInfo);
-                }
+                FillCollisionInfo(A, B, tetrahedron, ref collisionInfo);
                 return collisionInfo;
             }
 
@@ -268,18 +264,46 @@ namespace CustomPhysic
 
                 if (PointInTetrahedron(tetrahedron, Vector3.zero))
                 {
-                    CustomPhysicEngine.collidingTethraedron = tetrahedron;
-
-                    if(A.RB != null || B.RB != null)
-                    {
-                        EPA(A, B, tetrahedron, ref collisionInfo);
-                    }
-
+                    FillCollisionInfo(A, B, tetrahedron, ref collisionInfo);
                     return collisionInfo;
                 }
             }
 
             return null;
+        }
+
+        public static CollisionInfo CheckCollisionSphere(CustomSphereCollider A, CustomSphereCollider B)
+        {
+            Vector3 BA = A.transform.position - B.transform.position;
+            if ((A.Radius + B.Radius) > (BA.magnitude))
+            {
+                CollisionInfo collisionInfo = new CollisionInfo();
+                collisionInfo.objectA = A;
+                collisionInfo.objectB = B;
+                collisionInfo.normal = BA.normalized;
+                collisionInfo.penetration = (A.Radius + B.Radius) - (BA.magnitude);
+                collisionInfo.contactA = A.Support(-collisionInfo.normal);
+                collisionInfo.contactB = B.Support(collisionInfo.normal);
+                return collisionInfo;
+            }
+
+            return null;
+        }
+
+        public static void FillCollisionSphere(CustomSphereCollider A, CustomSphereCollider B, ref CollisionInfo collisionInfo)
+        {
+            Vector3 BA = A.transform.position - B.transform.position;
+            collisionInfo.normal = BA.normalized;
+            collisionInfo.penetration = (A.Radius + B.Radius) - (BA.magnitude);
+            collisionInfo.contactA = A.Support(-collisionInfo.normal);
+            collisionInfo.contactB = B.Support(collisionInfo.normal);
+        }
+
+
+        public static void FillCollisionInfo(CustomCollider A, CustomCollider B, Vector3[] Tetrahedron, ref CollisionInfo collisionInfo)
+        {
+            CustomPhysicEngine.collidingTethraedron = Tetrahedron;
+            EPA(A, B, Tetrahedron, ref collisionInfo);
         }
 
         public static void EPA(CustomCollider A, CustomCollider B, Vector3[] Tetrahedron, ref CollisionInfo collisionInfo)
