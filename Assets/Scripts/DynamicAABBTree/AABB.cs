@@ -4,7 +4,7 @@ namespace CustomPhysic
 {
     public struct AABB
     {
-        static float ENCAPSULATED_ADDED_EXTEND = 1.0f;
+        static float ENCAPSULATED_ADDED_EXTEND = 0.1f;
         public Vector3 Center { get; private set; }
         public Vector3 LowerBound { get; private set; }
         public Vector3 UpperBound { get; private set; }

@@ -127,19 +127,21 @@ namespace CustomPhysic
 
         private static bool IsPointSameSideOfPlane(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Vector3 point)
         {
-            Vector3 normal = Vector3.Cross(v2 - v1, v3 - v1);
-            Vector3 center = new Vector3((v1.x + v2.x + v3.x) / 3,
-                                            (v1.y + v2.y + v3.y) / 3,
-                                            (v1.z + v2.z + v3.z) / 3);
+            Plane plane = new Plane(v1, v2, v3);
+            return plane.SameSide(v4, point);
+            //Vector3 normal = Vector3.Cross(v2 - v1, v3 - v1);
+            //Vector3 center = new Vector3((v1.x + v2.x + v3.x) / 3,
+            //                                (v1.y + v2.y + v3.y) / 3,
+            //                                (v1.z + v2.z + v3.z) / 3);
 
-            float dotv4 = Vector3.Dot(normal, v4 - center);
+            //float dotv4 = Vector3.Dot(normal, v4 - center);
 
-            // v4 is on the same plane
-            if (dotv4 == 0)
-                return false;
+            //// v4 is on the same plane
+            //if (dotv4 == 0)
+            //    return false;
 
-            float dotP = Vector3.Dot(normal, point - center);
-            return Mathf.Sign(dotv4) == Mathf.Sign(dotP);
+            //float dotP = Vector3.Dot(normal, point - center);
+            //return Mathf.Sign(dotv4) == Mathf.Sign(dotP);
         }
 
         private static bool PointInTetrahedron(Vector3[] tetrahedron, Vector3 point)
@@ -203,10 +205,6 @@ namespace CustomPhysic
         // GJK Iteration
         public static CollisionInfo CheckCollision(CustomCollider A, CustomCollider B)
         {
-            if ((A is CustomSphereCollider) && (B is CustomSphereCollider))
-            {
-               return  CheckCollisionSphere((CustomSphereCollider)A, (CustomSphereCollider)B);
-            }
 
             supportA.Clear();
             supportB.Clear();
@@ -272,23 +270,7 @@ namespace CustomPhysic
             return null;
         }
 
-        public static CollisionInfo CheckCollisionSphere(CustomSphereCollider A, CustomSphereCollider B)
-        {
-            Vector3 BA = A.transform.position - B.transform.position;
-            if ((A.Radius + B.Radius) > (BA.magnitude))
-            {
-                CollisionInfo collisionInfo = new CollisionInfo();
-                collisionInfo.objectA = A;
-                collisionInfo.objectB = B;
-                collisionInfo.normal = BA.normalized;
-                collisionInfo.penetration = (A.Radius + B.Radius) - (BA.magnitude);
-                collisionInfo.contactA = A.Support(-collisionInfo.normal);
-                collisionInfo.contactB = B.Support(collisionInfo.normal);
-                return collisionInfo;
-            }
 
-            return null;
-        }
 
         public static void FillCollisionSphere(CustomSphereCollider A, CustomSphereCollider B, ref CollisionInfo collisionInfo)
         {
@@ -303,7 +285,14 @@ namespace CustomPhysic
         public static void FillCollisionInfo(CustomCollider A, CustomCollider B, Vector3[] Tetrahedron, ref CollisionInfo collisionInfo)
         {
             CustomPhysicEngine.collidingTethraedron = Tetrahedron;
-            EPA(A, B, Tetrahedron, ref collisionInfo);
+            if ((A is CustomSphereCollider) && (B is CustomSphereCollider))
+            {
+                FillCollisionSphere((CustomSphereCollider)A, (CustomSphereCollider)B, ref collisionInfo);
+            }
+            else
+            {
+                EPA(A, B, Tetrahedron, ref collisionInfo);
+            }
         }
 
         public static void EPA(CustomCollider A, CustomCollider B, Vector3[] Tetrahedron, ref CollisionInfo collisionInfo)

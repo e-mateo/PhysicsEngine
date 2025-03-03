@@ -81,6 +81,7 @@ namespace CustomPhysic
         {
             foreach(CollisionInfo collision in collisions)
             {
+                if(collision.normal == Vector3.zero) continue;
                 CustomPhysic.CustomRigidbody RB_A = collision.objectA.RB;
                 CustomPhysic.CustomRigidbody RB_B = collision.objectB.RB;
                 if(collision.objectA.bIsTrigger || collision.objectB.bIsTrigger)
@@ -132,13 +133,13 @@ namespace CustomPhysic
                 if (RB_A != null)
                 {
                     float JA = (-(1 + bounciness) * relativeVelocity) / (invMass_A + invMass_B + weightRotA + weightRotB);
-                    RB_A.AddForce(JA * invMass_A * collision.normal, CustomRigidbody.ForceType.FT_VelocityChange);
+                    RB_A.Velocity += JA * invMass_A * collision.normal;
                     RB_A.AddTorques(JA * momentumA, CustomRigidbody.ForceType.FT_VelocityChange);
                 }
                 if (RB_B != null)
                 {
                     float JB = (-(1 + bounciness) * relativeVelocity) / (invMass_A + invMass_B + weightRotA + weightRotB);
-                    RB_B.AddForce(-JB * invMass_B * collision.normal, CustomRigidbody.ForceType.FT_VelocityChange);
+                    RB_B.Velocity -= JB * invMass_B * collision.normal;
                     RB_B.AddTorques(-JB * momentumB, CustomRigidbody.ForceType.FT_VelocityChange);
                 }
             }
