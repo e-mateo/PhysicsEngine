@@ -434,14 +434,14 @@ namespace CustomPhysic
             Vector3 tA = polytope[index0];
             Vector3 tB = polytope[index1];
             Vector3 tC = polytope[index2];
-            Plane plane = new Plane(minNormal.normalized, tA);
+            Plane plane = new Plane(tA, tB, tC);
             Vector3 Cp = plane.ClosestPointOnPlane(Vector3.zero);
             if (!IsPointInsideTriangle(Cp, tA, tB, tC))
             {
                 List<Vector3> projectedPoint = new List<Vector3>();
-                projectedPoint.Add(Vector3.Project(Cp, tB - tA));
-                projectedPoint.Add(Vector3.Project(Cp, tC - tA));
-                projectedPoint.Add(Vector3.Project(Cp, tB - tC));
+                projectedPoint.Add(ClosestPointOnSegment(Cp, tA, tB));
+                projectedPoint.Add(ClosestPointOnSegment(Cp, tB, tC));
+                projectedPoint.Add(ClosestPointOnSegment(Cp, tC, tA));
 
                 Vector3 nearest = projectedPoint[0];
                 float minDist = float.MaxValue;
@@ -464,6 +464,26 @@ namespace CustomPhysic
             Vector3 Ap = x * supportA[index0] + y * supportA[index1] + z * supportA[index2];
             Vector3 Bp = x * supportB[index0] + y * supportB[index1] + z * supportB[index2];
             return (Ap, Bp);
+        }
+
+        public static Vector3 ClosestPointOnSegment(Vector3 p, Vector3 a, Vector3 b)
+        {
+            Vector3 ab = b - a;
+            Vector3 ap = p - a;
+            float dot = Vector3.Dot(ap, ab);
+            float d = dot / (ab.magnitude * ab.magnitude);
+            if(d <= 0)
+            {
+                return a;
+            }
+            else if(d >= 1)
+            {
+                return b;
+            }
+            else
+            {
+                return a + (ab * d);
+            }
         }
 
 
