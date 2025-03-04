@@ -57,6 +57,7 @@ namespace CustomPhysic
 
         public Vector3 Velocity {  get { return velocity; } set {  velocity = value; } }
         public Vector3 AngVelocity { get { return angVelocity; } set { angVelocity = value; } }
+        public bool IsKinematic { get { return isKinematic; } set { isKinematic = value; } }
 
         public float Mass { get { return mass; } set { mass = value; } }
 
