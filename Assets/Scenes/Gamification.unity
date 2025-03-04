@@ -2311,7 +2311,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73b4e62beeb6d084eb19c6446bc599c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  physicsMaterial: {fileID: 0}
+  physicsMaterial: {fileID: 11400000, guid: e04da4d7f0454d743809a7c8a3740b6e, type: 2}
   bShowAABBBox: 0
   radius: 1
 --- !u!1 &1873707052
