@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffa388df819de6e4681f26a5b93847d0, type: 3}
   m_Name: PM_Bumper
   m_EditorClassIdentifier: 
-  bouciness: 10
+  bouciness: 1
   friction: 0
