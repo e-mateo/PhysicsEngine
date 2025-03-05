@@ -30,8 +30,8 @@ Transform:
   m_GameObject: {fileID: 1967688065909322356}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.87, y: -4.692, z: 3.409}
-  m_LocalScale: {x: 0.69064, y: 0.69064, z: 0.69064}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.5539002, y: 0.5539002, z: 0.5539002}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -101,7 +101,7 @@ MonoBehaviour:
   physicsMaterial: {fileID: 11400000, guid: d1092da7085263246a6a5d1c4bbb5603, type: 2}
   bIsTrigger: 0
   bShowAABBBox: 0
-  radius: 0.35
+  radius: 0.3
 --- !u!114 &6008833718151129375
 MonoBehaviour:
   m_ObjectHideFlags: 0

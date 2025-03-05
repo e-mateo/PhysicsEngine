@@ -1,13 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using Unity.VisualScripting;
-using UnityEditor;
-using UnityEditor.PackageManager;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
-using UnityEngine.TextCore.Text;
 
 namespace CustomPhysic
 {
@@ -29,6 +23,9 @@ namespace CustomPhysic
         protected CustomRigidbody customRigidbody;
         protected Vector3 lastPosition;
 
+        public delegate void CollideCallback(CustomCollider other);
+        public CollideCallback collideCallback;
+
         static protected float minDistanceToMove = 0.05f;
         static protected int maxEPAIteration = 30;
 
@@ -44,6 +41,11 @@ namespace CustomPhysic
         [SerializeField] protected bool bShowAABBBox;
 
         protected Matrix4x4 InvInertiaTensor;
+
+        private void DefaultCollideResponse(CustomCollider other)
+        {
+
+        }
 
         protected virtual void SetInvInteriaTensor()
         {
@@ -73,6 +75,8 @@ namespace CustomPhysic
             {
                 customRigidbody.SetLocalInertiaTensor(InvInertiaTensor);
             }
+
+            collideCallback += DefaultCollideResponse;
         }
 
         private void OnEnable()
@@ -97,21 +101,6 @@ namespace CustomPhysic
         }
 
         #region Statics
-        public static List<Vector3> MinkowskiDifference(CustomCollider A, CustomCollider B)
-        {
-            List<Vector3> vertices = new List<Vector3>();
-
-            foreach (Vector3 vA in A.mesh.vertices)
-            {
-                foreach (Vector3 vB in B.mesh.vertices)
-                {
-                    vertices.Add((vA + A.transform.position) - (vB + B.transform.position));
-                }
-            }
-
-            return vertices;
-        }
-
         public static float precision = 0.001f;
         public static int maxIteration = 10;
 

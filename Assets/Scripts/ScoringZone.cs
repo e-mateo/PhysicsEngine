@@ -1,16 +1,25 @@
-using System.Collections;
-using System.Collections.Generic;
+using CustomPhysic;
+using Unity.VisualScripting;
 using UnityEngine;
 
-[RequireComponent(typeof(BoxCollider))]
+[RequireComponent(typeof(CustomBoxCollider))]
 public class ScoringWone : MonoBehaviour
 {
     [SerializeField] int value;
     [SerializeField] Scoring scoring;
+    private void OnEnable()
+    {
+        GetComponent<CustomBoxCollider>().collideCallback += Collide;
+    }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnDisable()
+    {
+        GetComponent<CustomBoxCollider>().collideCallback -= Collide;
+    }
+
+    private void Collide(CustomCollider other)
     {
         scoring.score += value;
-        Debug.Log("Score " +  value);
+        Destroy(other.gameObject);
     }
 }
