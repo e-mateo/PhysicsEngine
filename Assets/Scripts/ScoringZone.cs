@@ -17,7 +17,7 @@ public class ScoringWone : MonoBehaviour
         GetComponent<CustomBoxCollider>().collideCallback -= Collide;
     }
 
-    private void Collide(CustomCollider other)
+    private void Collide(CustomCollider other, CollisionInfo info)
     {
         scoring.score += value;
         Destroy(other.gameObject);

@@ -71,8 +71,8 @@ namespace CustomPhysic
                                     + " Normal: " + collisionInfo.normal);
                                 
                     collisions.Add(collisionInfo);
-                    collisionPair.colliderA.collideCallback.Invoke(collisionPair.colliderB);
-                    collisionPair.colliderB.collideCallback.Invoke(collisionPair.colliderA);
+                    collisionPair.colliderA.collideCallback.Invoke(collisionPair.colliderB, collisionInfo);
+                    collisionPair.colliderB.collideCallback.Invoke(collisionPair.colliderA, collisionInfo);
                 }
             }
 

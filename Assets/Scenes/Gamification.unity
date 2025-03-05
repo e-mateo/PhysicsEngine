@@ -556,7 +556,7 @@ GameObject:
   - component: {fileID: 77505679}
   m_Layer: 0
   m_Name: LD
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -574,10 +574,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 384353805}
   - {fileID: 1273989089}
-  - {fileID: 341107723}
-  - {fileID: 997954495}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &81259248 stripped
@@ -779,7 +776,7 @@ GameObject:
   - component: {fileID: 161428303}
   m_Layer: 0
   m_Name: Ramp (20)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1014,7 +1011,7 @@ GameObject:
   - component: {fileID: 184099694}
   m_Layer: 0
   m_Name: Ramp (6)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1253,7 +1250,8 @@ Transform:
   m_LocalPosition: {x: 6.457, y: -0.937, z: 2.813}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 322272900}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 14.973, y: 0, z: -53.342}
 --- !u!114 &254139705
@@ -1268,6 +1266,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0be8c7357a6acf74f9e034d7dcd9a1b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  smokeEffect: {fileID: 322272902}
   ballPrefab: {fileID: 1967688065909322356, guid: f3e6c8c7b2355de4eb571b462910f76e, type: 3}
   minLaunchSpeed: 3
   maxLaunchSpeed: 8
@@ -1588,6 +1587,16 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1340630fb7a3267499177be33f281f05, type: 3}
+--- !u!4 &322272900 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3104649414461961704, guid: e439935875df0c14690329c361ddb24a, type: 3}
+  m_PrefabInstance: {fileID: 2068679745}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &322272902 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 3016758543767710720, guid: e439935875df0c14690329c361ddb24a, type: 3}
+  m_PrefabInstance: {fileID: 2068679745}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &323444312
 GameObject:
   m_ObjectHideFlags: 0
@@ -1602,7 +1611,7 @@ GameObject:
   - component: {fileID: 323444314}
   m_Layer: 0
   m_Name: Ramp (12)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1693,37 +1702,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4943026425494946764, guid: 3fb6395dd09dd0148a794d528ac1245d, type: 3}
   m_PrefabInstance: {fileID: 1877069638}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &341107722
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 341107723}
-  m_Layer: 0
-  m_Name: InWall
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &341107723
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 341107722}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 77505679}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &357840981
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1848,37 +1826,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4943026425494946764, guid: 3fb6395dd09dd0148a794d528ac1245d, type: 3}
   m_PrefabInstance: {fileID: 1019050081}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &384353804
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 384353805}
-  m_Layer: 0
-  m_Name: Bumpers
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &384353805
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 384353804}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 77505679}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &386176891 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4943026425494946764, guid: 3fb6395dd09dd0148a794d528ac1245d, type: 3}
@@ -2285,7 +2232,7 @@ GameObject:
   - component: {fileID: 458905387}
   m_Layer: 0
   m_Name: BackWall
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2485,7 +2432,7 @@ GameObject:
   - component: {fileID: 464862208}
   m_Layer: 0
   m_Name: LWall (1)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2595,7 +2542,7 @@ GameObject:
   - component: {fileID: 474947514}
   m_Layer: 0
   m_Name: Ramp (7)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2691,100 +2638,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4943026425494946764, guid: 3fb6395dd09dd0148a794d528ac1245d, type: 3}
   m_PrefabInstance: {fileID: 759766928}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &501887544
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 501887545}
-  - component: {fileID: 501887546}
-  m_Layer: 0
-  m_Name: Pivot (2)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &501887545
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 501887544}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.77, y: 3.65, z: -0.74}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 997954495}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &501887546
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 501887544}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 537df652708976341bf6b9d5fc5eced3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  type: 1
-  angleMax: 45
-  degPSecond: 720
---- !u!1 &506521215
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 506521216}
-  - component: {fileID: 506521217}
-  m_Layer: 0
-  m_Name: Pivot (1)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &506521216
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 506521215}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.58, y: -2.73, z: -2.8}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 997954495}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &506521217
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 506521215}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 537df652708976341bf6b9d5fc5eced3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  type: 1
-  angleMax: 45
-  degPSecond: 720
 --- !u!1 &513211403
 GameObject:
   m_ObjectHideFlags: 0
@@ -2798,7 +2651,7 @@ GameObject:
   - component: {fileID: 513211406}
   m_Layer: 0
   m_Name: Ramp cache
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3182,7 +3035,7 @@ GameObject:
   - component: {fileID: 622363490}
   m_Layer: 0
   m_Name: Ramp (16)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3282,7 +3135,7 @@ GameObject:
   - component: {fileID: 622487391}
   m_Layer: 0
   m_Name: Ramp (13)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3501,7 +3354,7 @@ GameObject:
   - component: {fileID: 713223064}
   m_Layer: 0
   m_Name: Ramp (15)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3606,7 +3459,7 @@ GameObject:
   - component: {fileID: 724961237}
   m_Layer: 0
   m_Name: Ramp (18)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3944,7 +3797,7 @@ GameObject:
   - component: {fileID: 823224716}
   m_Layer: 0
   m_Name: Ramp (14)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4706,53 +4559,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1 &953526675
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 953526676}
-  - component: {fileID: 953526677}
-  m_Layer: 0
-  m_Name: Pivot
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &953526676
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 953526675}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.685, y: -2.506, z: -2.8}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 997954495}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &953526677
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 953526675}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 537df652708976341bf6b9d5fc5eced3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  type: 0
-  angleMax: 45
-  degPSecond: 720
 --- !u!1001 &958233253
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4890,40 +4696,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bf19a6c453b23a147b29347d24aa7e01, type: 3}
---- !u!1 &997954494
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 997954495}
-  m_Layer: 0
-  m_Name: Palets
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &997954495
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 997954494}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.2100568, y: -2.1966145, z: 9.6676445}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 953526676}
-  - {fileID: 506521216}
-  - {fileID: 501887545}
-  m_Father: {fileID: 77505679}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1011887060
 GameObject:
   m_ObjectHideFlags: 0
@@ -5100,7 +4872,7 @@ GameObject:
   - component: {fileID: 1073713964}
   m_Layer: 0
   m_Name: LWall (2)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5857,7 +5629,7 @@ GameObject:
   - component: {fileID: 1273989089}
   m_Layer: 0
   m_Name: Borders
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6221,7 +5993,7 @@ GameObject:
   - component: {fileID: 1339558334}
   m_Layer: 0
   m_Name: Ramp (19)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6431,7 +6203,7 @@ GameObject:
   - component: {fileID: 1377112463}
   m_Layer: 0
   m_Name: Ramp (10)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6680,7 +6452,7 @@ GameObject:
   - component: {fileID: 1424712306}
   m_Layer: 0
   m_Name: Ramp (8)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6780,7 +6552,7 @@ GameObject:
   - component: {fileID: 1433257949}
   m_Layer: 0
   m_Name: Ramp (17)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6937,7 +6709,7 @@ GameObject:
   - component: {fileID: 1439146022}
   m_Layer: 0
   m_Name: Ramp (9)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7509,7 +7281,7 @@ GameObject:
   - component: {fileID: 1599524523}
   m_Layer: 0
   m_Name: Glass
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7802,7 +7574,7 @@ GameObject:
   - component: {fileID: 1658052763}
   m_Layer: 0
   m_Name: Ramp (5)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -8304,7 +8076,7 @@ GameObject:
   - component: {fileID: 1771555320}
   m_Layer: 0
   m_Name: Ramp (11)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9006,7 +8778,7 @@ GameObject:
   - component: {fileID: 1869975786}
   m_Layer: 0
   m_Name: LWall (4)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9240,7 +9012,7 @@ GameObject:
   - component: {fileID: 1873707057}
   m_Layer: 0
   m_Name: LWall
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9516,7 +9288,7 @@ GameObject:
   - component: {fileID: 1922764799}
   m_Layer: 0
   m_Name: LWall (3)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -10288,6 +10060,79 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3fb6395dd09dd0148a794d528ac1245d, type: 3}
+--- !u!1001 &2068679745
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 254139704}
+    m_Modifications:
+    - target: {fileID: 1111271271096355673, guid: e439935875df0c14690329c361ddb24a, type: 3}
+      propertyPath: m_Name
+      value: Smoke
+      objectReference: {fileID: 0}
+    - target: {fileID: 3016758543767710720, guid: e439935875df0c14690329c361ddb24a, type: 3}
+      propertyPath: ShapeModule.arc.value
+      value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104649414461961704, guid: e439935875df0c14690329c361ddb24a, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.58988
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104649414461961704, guid: e439935875df0c14690329c361ddb24a, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.58988
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104649414461961704, guid: e439935875df0c14690329c361ddb24a, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.58988
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104649414461961704, guid: e439935875df0c14690329c361ddb24a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104649414461961704, guid: e439935875df0c14690329c361ddb24a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.47
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104649414461961704, guid: e439935875df0c14690329c361ddb24a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.03
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104649414461961704, guid: e439935875df0c14690329c361ddb24a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.99993134
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104649414461961704, guid: e439935875df0c14690329c361ddb24a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.011722521
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104649414461961704, guid: e439935875df0c14690329c361ddb24a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.000000055879358
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104649414461961704, guid: e439935875df0c14690329c361ddb24a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.00000003539026
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104649414461961704, guid: e439935875df0c14690329c361ddb24a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 1.343
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104649414461961704, guid: e439935875df0c14690329c361ddb24a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3104649414461961704, guid: e439935875df0c14690329c361ddb24a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e439935875df0c14690329c361ddb24a, type: 3}
 --- !u!4 &2069116138 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4943026425494946764, guid: 3fb6395dd09dd0148a794d528ac1245d, type: 3}
@@ -10317,7 +10162,7 @@ GameObject:
   - component: {fileID: 2100561008}
   m_Layer: 0
   m_Name: Ramp (21)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class BallSpawner : MonoBehaviour
 {
+    [SerializeField] ParticleSystem smokeEffect;
+
     [SerializeField] private GameObject ballPrefab;
     [SerializeField] private float minLaunchSpeed = 5;
     [SerializeField] private float maxLaunchSpeed = 10;
@@ -31,6 +33,8 @@ public class BallSpawner : MonoBehaviour
             GameObject ball = Instantiate(ballPrefab,transform.position, transform.rotation);
             ball.GetComponent<CustomRigidbody>().AddForce(transform.up * effectiveLaunchSpeed, CustomRigidbody.ForceType.FT_Impulse);
             effectiveLaunchSpeed = 0;
+
+            smokeEffect.Play();
         }
 
         Debug.Log(effectiveLaunchSpeed);

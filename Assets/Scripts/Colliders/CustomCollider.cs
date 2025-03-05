@@ -23,7 +23,7 @@ namespace CustomPhysic
         protected CustomRigidbody customRigidbody;
         protected Vector3 lastPosition;
 
-        public delegate void CollideCallback(CustomCollider other);
+        public delegate void CollideCallback(CustomCollider other, CollisionInfo info);
         public CollideCallback collideCallback;
 
         static protected float minDistanceToMove = 0.05f;
@@ -42,7 +42,7 @@ namespace CustomPhysic
 
         protected Matrix4x4 InvInertiaTensor;
 
-        private void DefaultCollideResponse(CustomCollider other)
+        private void DefaultCollideResponse(CustomCollider other, CollisionInfo info)
         {
 
         }
@@ -75,12 +75,11 @@ namespace CustomPhysic
             {
                 customRigidbody.SetLocalInertiaTensor(InvInertiaTensor);
             }
-
-            collideCallback += DefaultCollideResponse;
         }
 
         private void OnEnable()
         {
+            collideCallback += DefaultCollideResponse;
             if (CustomPhysicEngine.Instance)
             {
                 CustomPhysicEngine.Instance.OnColliderEnable(this);
@@ -89,6 +88,7 @@ namespace CustomPhysic
 
         private void OnDisable()
         {
+            collideCallback += DefaultCollideResponse;
             if (CustomPhysicEngine.Instance)
             {
                 CustomPhysicEngine.Instance.OnColliderDisbale(this);
